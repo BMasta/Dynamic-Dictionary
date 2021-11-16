@@ -3,6 +3,9 @@ package com.android.dynamic_dictionary;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -18,8 +21,6 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.json.JSONArray;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,13 +28,18 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener, AdapterView.OnItemClickListener,
-            NewWordDialog.NewWordDialogListener, EditWordDialog.EditWordDialogListener,
-            WebDictionary.WebDictionaryResponseListener {
+        NewWordDialog.NewWordDialogListener, EditWordDialog.EditWordDialogListener,
+        WebDictionary.WebDictionaryResponseListener {
     //***********************************Global scope variables***********************************//
 
     // UI elements (Views)
     private ListView listViewWords;
     private FloatingActionButton buttonAdd;
+    private ConstraintLayout constraintLayoutRoot;
+    private ConstraintLayout constraintLayoutDesc;
+    private ViewPager2 pagerDesc;
+    private ConstraintSet setDescVisible, setDescInvisible;
+    private DescPagerAdapter pagerAdapter;
 
     // local lists
     private List<WordEntry> words;
@@ -44,8 +50,8 @@ public class MainActivity extends AppCompatActivity
     //***************************************init functions***************************************//
 
     /**
-    * Synchronizes local lists with the database.
-    */
+     * Synchronizes local lists with the database.
+     */
     public void dbSync() {
         words.clear();
         words = dbHelper.getAll();
@@ -59,26 +65,29 @@ public class MainActivity extends AppCompatActivity
         //------------------------------------get views------------------------------------//
         listViewWords = findViewById(R.id.listViewWords);
         buttonAdd = findViewById(R.id.floatingActionButtonAdd);
-        ConstraintLayout constraintLayoutMain = findViewById(R.id.constrainedLayoutMain);
-        registerForContextMenu(listViewWords);
+        constraintLayoutRoot = findViewById(R.id.constrainedLayoutRoot);
+        constraintLayoutDesc = findViewById(R.id.constrainedLayoutDesc);
+        pagerDesc = findViewById(R.id.pagerDesc);
         //-----------------------------define global variables-----------------------------//
         words = new ArrayList<>();
         dbHelper = new DatabaseHelper(MainActivity.this);
         //----------------------------------set listeners----------------------------------//
         listViewWords.setOnItemClickListener(this);
         buttonAdd.setOnClickListener(this);
-        constraintLayoutMain.setOnClickListener(this);
+        constraintLayoutRoot.setOnClickListener(this);
+        registerForContextMenu(listViewWords);
         //---------------------------------------------------------------------------------//
-        WebDictionary.sendDefinitionRequest(this, "brave");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         //-------------------------------call init functions-------------------------------//
+        constraintUpdate();
         dbSync();
         listUpdate();
         //---------------------------------------------------------------------------------//
+        WebDictionary.sendMultipleDefinitionRequests(this, words);
     }
 
     @Override
@@ -110,6 +119,19 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        constraintLayoutDesc.setVisibility(View.VISIBLE);
+        constraintUpdate();
+        WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
+        pagerAdapter = new DescPagerAdapter(e.getMeanings());
+        pagerDesc.setAdapter(pagerAdapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (constraintLayoutDesc.getVisibility() == View.VISIBLE) {
+            constraintLayoutDesc.setVisibility(View.INVISIBLE);
+            constraintUpdate();
+        }
     }
 
     @Override
@@ -158,8 +180,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void handleResponseData(String word, String response) {
-        WordEntry we = new WordEntry("", "", response, true);
-        we.getMeanings();
+        WordEntry we = new WordEntry(word, "", response, true);
+        editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), response, false);
+        Toast.makeText(this, "Assigned meanings for \"" + word + "\"", Toast.LENGTH_SHORT).show();
     }
 
     //********************************word manipulation functions*********************************//
@@ -192,14 +215,13 @@ public class MainActivity extends AppCompatActivity
      * Edits an existing word.
      * Includes modifying database, local lists, and visual elements representing the words
      *
-     * @param position      Position of an object that holds the word in a ListView
+     * @param oldWord       Old word
      * @param newWord       Modified version of a word
      * @param newDesc       Modified version of a description
      * @param toastFeedback If set to true, a toast feedback message would appear upon addition
      * @return Was the edit successful
      */
-    public boolean editWord(int position, String newWord, String newDesc, boolean toastFeedback) {
-        String oldWord = (String) listViewWords.getItemAtPosition(position);
+    public boolean editWord(String oldWord, String newWord, String newDesc, boolean toastFeedback) {
         WordEntry entry = new WordEntry(newWord, newDesc, words.get(getIndexByWord(words, oldWord)).getMeaningsJson(), false);
         boolean edited = dbHelper.edit(oldWord, entry);
         if (edited) {
@@ -209,8 +231,16 @@ public class MainActivity extends AppCompatActivity
         } else
             return false;
     }
+
+    public boolean editWord(int position, String newWord, String newDesc, boolean toastFeedback) {
+        return editWord((String) listViewWords.getItemAtPosition(position), newWord, newDesc, toastFeedback);
+    }
+
     public boolean editWord(int position, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
-        String oldWord = (String) listViewWords.getItemAtPosition(position);
+        return editWord((String) listViewWords.getItemAtPosition(position), newWord, newDesc, newMeaningsJson, toastFeedback);
+    }
+
+    public boolean editWord(String oldWord, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
         WordEntry entry = new WordEntry(newWord, newDesc, newMeaningsJson, false);
         boolean edited = dbHelper.edit(oldWord, entry);
         if (edited) {
@@ -254,8 +284,8 @@ public class MainActivity extends AppCompatActivity
     //***************************************misc functions***************************************//
 
     /**
-    * Updates ListView with the data in local lists.
-    */
+     * Updates ListView with the data in local lists.
+     */
     public void listUpdate() {
         List<WordEntry> reversedWords = new ArrayList<>(words);
         Collections.reverse(reversedWords);
@@ -277,6 +307,24 @@ public class MainActivity extends AppCompatActivity
                 return i;
         }
         return -1;
+    }
+
+    public void constraintUpdate() {
+        // init sets
+        setDescVisible = new ConstraintSet();
+        setDescInvisible = new ConstraintSet();
+        setDescVisible.clone(constraintLayoutRoot);
+        setDescInvisible.clone(constraintLayoutRoot);
+        setDescVisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutDesc, ConstraintSet.TOP);
+        setDescVisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.7f);
+        setDescInvisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutRoot, ConstraintSet.BOTTOM);
+        setDescInvisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.9f);
+
+        // apply sets
+        if (constraintLayoutDesc.getVisibility() == View.VISIBLE)
+            setDescVisible.applyTo(constraintLayoutRoot);
+        else
+            setDescInvisible.applyTo(constraintLayoutRoot);
     }
 
     //********************************************************************************************//
