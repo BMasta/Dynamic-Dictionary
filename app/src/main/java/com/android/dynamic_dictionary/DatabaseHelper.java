@@ -5,10 +5,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHelper extends SQLiteOpenHelper{
+public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "WORDS_TABLE", COL_WORD = "WORD", COL_DESC = "DESCRIPTION", COL_MEANINGS = "MEANINGSJSON";
     private static final int COL_WORD_INDEX = 0, COL_DESC_INDEX = 1, COL_MEANINGS_INDEX = 2;
 
@@ -20,8 +21,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         String createTableStatement = "CREATE TABLE " + TABLE_NAME + " "
                 + "("
-                + COL_WORD +     " TEXT, "
-                + COL_DESC +     " TEXT, "
+                + COL_WORD + " TEXT, "
+                + COL_DESC + " TEXT, "
                 + COL_MEANINGS + " TEXT"
                 + ")";
 
@@ -70,7 +71,9 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         cv.put(COL_DESC, newEntry.getDescription());
         cv.put(COL_MEANINGS, newEntry.getMeaningsJson());
         int updated = db.update(TABLE_NAME, cv, COL_WORD + "=?", new String[]{oldWord});
-        return updated > 0;
+        if (updated == 0)
+            return add(newEntry);
+        return true;
     }
 
     public boolean delete(String word) {
@@ -78,6 +81,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         int deleted = db.delete(TABLE_NAME, COL_WORD + "=?", new String[]{word});
         return deleted > 0;
     }
+
     public boolean delete(WordEntry entry) {
 
         return delete(entry.getWord());

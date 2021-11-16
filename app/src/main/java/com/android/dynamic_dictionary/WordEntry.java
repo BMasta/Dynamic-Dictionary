@@ -61,7 +61,7 @@ public class WordEntry {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            } catch (NullPointerException e) { }
 
         }
         return meanings;

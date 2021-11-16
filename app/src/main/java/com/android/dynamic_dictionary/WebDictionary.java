@@ -10,6 +10,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.List;
+
 public class WebDictionary {
     private WebDictionaryResponseListener listener;
     private static WebDictionary instance;
@@ -27,6 +29,12 @@ public class WebDictionary {
             listener = (WebDictionaryResponseListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement WebDictionaryResponseListener");
+        }
+    }
+
+    public static void sendMultipleDefinitionRequests(Context context, List<WordEntry> words) {
+        for (int i = 0; i < words.size(); ++i) {
+            sendDefinitionRequest(context, words.get(i).getWord());
         }
     }
 

@@ -67,7 +67,7 @@ public class EditWordDialog extends AppCompatDialogFragment {
         }
     }
 
-    public interface EditWordDialogListener{
+    public interface EditWordDialogListener {
         void handleEditDialogData(int position, String word, String desc);
     }
 }

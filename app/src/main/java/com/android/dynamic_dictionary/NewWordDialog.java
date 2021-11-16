@@ -56,7 +56,7 @@ public class NewWordDialog extends AppCompatDialogFragment {
         }
     }
 
-    public interface NewWordDialogListener{
+    public interface NewWordDialogListener {
         void handleNewDialogData(String word, String desc);
     }
 }

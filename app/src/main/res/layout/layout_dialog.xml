@@ -6,15 +6,16 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:padding="16dp">
+
         <EditText
             android:id="@+id/editTextWord"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Word"
             android:layout_centerHorizontal="true"
-            android:inputType="text"/>
+            android:hint="Word"
+            android:inputType="text" />
 
         <EditText
             android:id="@+id/editTextDesc"
@@ -23,6 +24,6 @@
             android:layout_below="@id/editTextWord"
             android:layout_centerHorizontal="true"
             android:hint="Description"
-            android:inputType="textMultiLine"/>
+            android:inputType="textMultiLine" />
     </RelativeLayout>
 </RelativeLayout>
