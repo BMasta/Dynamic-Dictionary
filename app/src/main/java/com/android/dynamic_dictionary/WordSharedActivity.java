@@ -9,7 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class WordSharedActivity extends Activity {
+public class WordSharedActivity extends Activity implements WebDictionary.WebDictionaryResponseListener {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,8 +17,11 @@ public class WordSharedActivity extends Activity {
         String word = intent.getClipData().getItemAt(0).getText().toString().split("\n")[0].split("\"")[1];
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         dbHelper.add(new WordEntry(word, "", "", false));
-
         Toast.makeText(this, "Saved " + " " + word, Toast.LENGTH_SHORT).show();
         this.finish();
+    }
+
+    @Override
+    public void handleResponseData(String word, String response) {
     }
 }

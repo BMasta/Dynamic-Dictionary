@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -17,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -121,8 +123,10 @@ public class MainActivity extends AppCompatActivity
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         constraintLayoutDesc.setVisibility(View.VISIBLE);
         constraintUpdate();
+        TextView textViewWord = findViewById(R.id.textViewWord);
+        textViewWord.setText((String)listViewWords.getItemAtPosition(position));
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
-        pagerAdapter = new DescPagerAdapter(e.getMeanings());
+        pagerAdapter = new DescPagerAdapter(this, e.getMeanings());
         pagerDesc.setAdapter(pagerAdapter);
     }
 
@@ -169,6 +173,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void handleNewDialogData(String word, String desc) {
         addWord(word, desc, "", true);
+        WebDictionary.sendDefinitionRequest(this, word);
         listUpdate();
     }
 
@@ -182,7 +187,7 @@ public class MainActivity extends AppCompatActivity
     public void handleResponseData(String word, String response) {
         WordEntry we = new WordEntry(word, "", response, true);
         editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), response, false);
-        Toast.makeText(this, "Assigned meanings for \"" + word + "\"", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Assigned meanings for \"" + word + "\"", Toast.LENGTH_SHORT).show();
     }
 
     //********************************word manipulation functions*********************************//
