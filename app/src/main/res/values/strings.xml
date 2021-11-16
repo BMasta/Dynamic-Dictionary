@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Dynamic Dictionary</string>
+    <string name="title_activity_list">ListActivity</string>
+    <string name="name_last_hint">Last name</string>
+    <string name="name_first_hint">First name</string>
+    <string name="email_hint">Email</string>
+    <string name="buttonReg_text">Register</string>
+    <string name="radioButton_Male">Male</string>
+    <string name="radioButton_Female">Female</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+</resources>
