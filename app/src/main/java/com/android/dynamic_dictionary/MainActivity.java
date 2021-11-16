@@ -2,16 +2,24 @@ package com.android.dynamic_dictionary;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ViewPropertyAnimatorCompatSet;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.view.ViewPropertyAnimatorCompat;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.view.View;
 import android.widget.Toast;
@@ -34,6 +42,9 @@ public class MainActivity extends AppCompatActivity
     // UI elements (Views)
     private ListView listViewWords;
     private FloatingActionButton buttonAdd;
+    private ConstraintLayout constraintLayoutRoot;
+    private ConstraintLayout constraintLayoutDesc;
+    private ConstraintSet setDescVisible, setDescInvisible;
 
     // local lists
     private List<WordEntry> words;
@@ -59,7 +70,8 @@ public class MainActivity extends AppCompatActivity
         //------------------------------------get views------------------------------------//
         listViewWords = findViewById(R.id.listViewWords);
         buttonAdd = findViewById(R.id.floatingActionButtonAdd);
-        ConstraintLayout constraintLayoutMain = findViewById(R.id.constrainedLayoutMain);
+        constraintLayoutRoot = findViewById(R.id.constrainedLayoutRoot);
+        constraintLayoutDesc = findViewById(R.id.constrainedLayoutDesc);
         registerForContextMenu(listViewWords);
         //-----------------------------define global variables-----------------------------//
         words = new ArrayList<>();
@@ -67,15 +79,15 @@ public class MainActivity extends AppCompatActivity
         //----------------------------------set listeners----------------------------------//
         listViewWords.setOnItemClickListener(this);
         buttonAdd.setOnClickListener(this);
-        constraintLayoutMain.setOnClickListener(this);
+        constraintLayoutRoot.setOnClickListener(this);
         //---------------------------------------------------------------------------------//
-        WebDictionary.sendDefinitionRequest(this, "brave");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         //-------------------------------call init functions-------------------------------//
+        constraintUpdate();
         dbSync();
         listUpdate();
         //---------------------------------------------------------------------------------//
@@ -110,6 +122,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        constraintLayoutDesc.setVisibility(View.VISIBLE);
+        constraintUpdate();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (constraintLayoutDesc.getVisibility() == View.VISIBLE) {
+            constraintLayoutDesc.setVisibility(View.INVISIBLE);
+            constraintUpdate();
+        }
     }
 
     @Override
@@ -277,6 +299,24 @@ public class MainActivity extends AppCompatActivity
                 return i;
         }
         return -1;
+    }
+
+    public void constraintUpdate() {
+        // init sets
+        setDescVisible = new ConstraintSet();
+        setDescInvisible = new ConstraintSet();
+        setDescVisible.clone(constraintLayoutRoot);
+        setDescInvisible.clone(constraintLayoutRoot);
+        setDescVisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutDesc, ConstraintSet.TOP);
+        setDescVisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.7f);
+        setDescInvisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutRoot, ConstraintSet.BOTTOM);
+        setDescInvisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.9f);
+
+        // apply sets
+        if (constraintLayoutDesc.getVisibility() == View.VISIBLE)
+            setDescVisible.applyTo(constraintLayoutRoot);
+        else
+            setDescInvisible.applyTo(constraintLayoutRoot);
     }
 
     //********************************************************************************************//
