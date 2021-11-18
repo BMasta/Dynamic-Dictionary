@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+
 import java.util.List;
 
 public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPagerAdapter.ViewPagerViewHolder> {
@@ -24,10 +27,14 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
 
     public class ViewPagerViewHolder extends RecyclerView.ViewHolder {
         private ViewPager2 pagerMeanings;
+        private TabLayout tabLayout;
+        private TextView textViewVariation;
 
         public ViewPagerViewHolder(@NonNull View itemView) {
             super(itemView);
             pagerMeanings = itemView.findViewById(R.id.pagerMeanings);
+            tabLayout = itemView.findViewById(R.id.tabLayoutVariations);
+            textViewVariation = itemView.findViewById(R.id.textViewWord);
         }
     }
 
@@ -40,12 +47,23 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
 
     @Override
     public void onBindViewHolder(@NonNull ViewPagerViewHolder holder, int position) {
+
         MeaningsPagerAdapter meaningsPagerAdapter = new MeaningsPagerAdapter(parentContext, variations.get(position).getMeanings());
         holder.pagerMeanings.setAdapter(meaningsPagerAdapter);
+        holder.pagerMeanings.setUserInputEnabled(false);
+        new TabLayoutMediator(holder.tabLayout, holder.pagerMeanings, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int positionMeaning) {
+                tab.setText(variations.get(holder.getAdapterPosition()).getMeanings().get(positionMeaning).getPartOfSpeech());
+            }
+        }).attach();
+        holder.textViewVariation.setText(variations.get(position).getWordVariation());
     }
 
     @Override
     public int getItemCount() {
         return variations.size();
     }
+
+
 }

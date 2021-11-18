@@ -16,6 +16,9 @@ public class WordEntryDefinition {
     //-----------------------constructor------------------------//
     public WordEntryDefinition(JSONObject definitionJson) {
         this.definitionJson = definitionJson;
+        getTitle();
+        getExample();
+        getSynonyms();
     }
     //-------------------getters and setters--------------------//
     public String getTitle() {

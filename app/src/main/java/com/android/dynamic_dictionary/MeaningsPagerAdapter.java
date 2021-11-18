@@ -23,13 +23,10 @@ public class MeaningsPagerAdapter extends RecyclerView.Adapter<MeaningsPagerAdap
     }
 
     public class ViewPagerViewHolder extends RecyclerView.ViewHolder {
-        private TextView textViewPartOfSpeech;
         private RecyclerView recyclerViewDefinitions;
 
         public ViewPagerViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            textViewPartOfSpeech = itemView.findViewById(R.id.textViewPartOfSpeech);
             recyclerViewDefinitions = itemView.findViewById(R.id.recycleViewDefinitions);
         }
     }
@@ -43,7 +40,6 @@ public class MeaningsPagerAdapter extends RecyclerView.Adapter<MeaningsPagerAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewPagerViewHolder holder, int position) {
-        holder.textViewPartOfSpeech.setText(meanings.get(position).getPartOfSpeech());
         holder.recyclerViewDefinitions.setAdapter(new DefinitionsRecyclerViewAdapter(meanings.get(position).getDefinitions()));
         holder.recyclerViewDefinitions.setLayoutManager(new LinearLayoutManager(parentContext));
     }

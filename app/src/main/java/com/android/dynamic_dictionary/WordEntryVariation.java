@@ -13,12 +13,21 @@ public class WordEntryVariation {
     private JSONObject wordJson;
     private List<WordEntryMeaning> meanings;
     //-----------------------constructor------------------------//
-    public WordEntryVariation(String wordVariety, JSONObject wordJson) {
-        this.wordVariation = wordVariety;
+    public WordEntryVariation(JSONObject wordJson) {
         this.wordJson = wordJson;
+        getWordVariation();
+        getMeanings();
     }
     //-------------------getters and setters--------------------//
     public String getWordVariation() {
+        if (wordVariation == null) {
+            try {
+                wordVariation =  wordJson.getString("word");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         return wordVariation;
     }
 
@@ -40,6 +49,18 @@ public class WordEntryVariation {
 
         }
         return meanings;
+    }
+    //---------------------add more meanings--------------------//
+    public void addMeanings(List<WordEntryMeaning> meaningsToAdd) {
+        for (int iMeanings = 0, iMeaningsToAdd = 0; iMeaningsToAdd < meaningsToAdd.size(); ++iMeaningsToAdd) {
+            WordEntryMeaning newMeaning = meaningsToAdd.get(iMeaningsToAdd);
+            if (newMeaning.getPartOfSpeech().equals(meanings.get(iMeanings).getPartOfSpeech())) {
+                meanings.get(iMeanings).addDefinitions(newMeaning.getDefinitions());
+            } else {
+                iMeanings++;
+                meanings.add(newMeaning);
+            }
+        }
     }
     //-------------------------toString-------------------------//
     @Override

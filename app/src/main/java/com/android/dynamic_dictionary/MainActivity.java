@@ -126,11 +126,8 @@ public class MainActivity extends AppCompatActivity
         constraintLayoutDesc.setVisibility(View.VISIBLE);
         constraintUpdate();
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
-        ((TextView) findViewById(R.id.textViewWord)).setText(e.getWord());
         pagerAdapter = new VariationsPagerAdapter(this, e.getWordVariations());
         pagerVariations.setAdapter(pagerAdapter);
-
-        TabLayout tabLayout = findViewById(R.id.tabLayoutVariations);
     }
 
     @Override
@@ -334,6 +331,5 @@ public class MainActivity extends AppCompatActivity
         else
             setDescInvisible.applyTo(constraintLayoutRoot);
     }
-
     //********************************************************************************************//
 }

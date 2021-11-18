@@ -19,6 +19,7 @@ public class WordEntry {
         this.word = word;
         this.description = description;
         this.wordsJson = wordsJson;
+        getWordVariations();
     }
     //-------------------getters and setters--------------------//
     public String getWord() {
@@ -42,8 +43,15 @@ public class WordEntry {
 
             try {
                 JSONArray wordsParsed = new JSONArray(wordsJson);
-                for (int i = 0; i < wordsParsed.length(); ++i) {
-                    wordVariations.add(new WordEntryVariation(word, wordsParsed.getJSONObject(i)));
+                for (int iWordsParsed = 0, iWordVar = 0; iWordsParsed < wordsParsed.length(); ++iWordsParsed) {
+                    WordEntryVariation newVar = new WordEntryVariation(wordsParsed.getJSONObject(iWordsParsed));
+                    if (iWordVar > 0 && newVar.getWordVariation().equals(wordVariations.get(iWordVar-1).getWordVariation())) {
+                        // combine meanings of 2 or more variations if they have the same title
+                        wordVariations.get(iWordVar-1).addMeanings(newVar.getMeanings());
+                    } else {
+                        iWordVar++;
+                        wordVariations.add(newVar);
+                    }
                 }
 
             } catch (JSONException e) {

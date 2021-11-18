@@ -16,6 +16,8 @@ public class WordEntryMeaning {
     //-----------------------constructor------------------------//
     public WordEntryMeaning(JSONObject meaningJson) {
         this.meaningJson = meaningJson;
+        getPartOfSpeech();
+        getDefinitions();
     }
     //-------------------getters and setters--------------------//
     public String getPartOfSpeech() {
@@ -46,6 +48,13 @@ public class WordEntryMeaning {
             }
         }
         return definitions;
+    }
+    //-------------------add more definitions-------------------//
+    public void addDefinitions(List<WordEntryDefinition> definitionsToAdd) {
+        for (int i = 0; i < definitionsToAdd.size(); ++i) {
+            definitions.add(definitionsToAdd.get(i));
+        }
+
     }
     //-------------------------toString-------------------------//
     @Override
