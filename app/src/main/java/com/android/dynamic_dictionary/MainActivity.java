@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
@@ -126,7 +124,7 @@ public class MainActivity extends AppCompatActivity
         TextView textViewWord = findViewById(R.id.textViewWord);
         textViewWord.setText((String)listViewWords.getItemAtPosition(position));
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
-        pagerAdapter = new DescPagerAdapter(this, e.getMeanings());
+        pagerAdapter = new DescPagerAdapter(this, e.getWordVariations());
         pagerDesc.setAdapter(pagerAdapter);
     }
 
@@ -185,7 +183,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void handleResponseData(String word, String response) {
-        WordEntry we = new WordEntry(word, "", response, true);
+        WordEntry we = new WordEntry(word, "", response);
         editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), response, false);
         //Toast.makeText(this, "Assigned meanings for \"" + word + "\"", Toast.LENGTH_SHORT).show();
     }
@@ -202,7 +200,7 @@ public class MainActivity extends AppCompatActivity
      * @return Was the addition successful
      */
     public boolean addWord(String wd, String desc, String meaningsJson, boolean toastFeedback) {
-        WordEntry newEntry = new WordEntry(wd, desc, meaningsJson, false);
+        WordEntry newEntry = new WordEntry(wd, desc, meaningsJson);
         boolean added = dbHelper.add(newEntry);
         if (toastFeedback) {
             if (added)
@@ -227,7 +225,7 @@ public class MainActivity extends AppCompatActivity
      * @return Was the edit successful
      */
     public boolean editWord(String oldWord, String newWord, String newDesc, boolean toastFeedback) {
-        WordEntry entry = new WordEntry(newWord, newDesc, words.get(getIndexByWord(words, oldWord)).getMeaningsJson(), false);
+        WordEntry entry = new WordEntry(newWord, newDesc, words.get(getIndexByWord(words, oldWord)).getWordsJson());
         boolean edited = dbHelper.edit(oldWord, entry);
         if (edited) {
             words.set(getIndexByWord(words, oldWord), entry);
@@ -246,7 +244,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean editWord(String oldWord, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
-        WordEntry entry = new WordEntry(newWord, newDesc, newMeaningsJson, false);
+        WordEntry entry = new WordEntry(newWord, newDesc, newMeaningsJson);
         boolean edited = dbHelper.edit(oldWord, entry);
         if (edited) {
             words.set(getIndexByWord(words, oldWord), entry);

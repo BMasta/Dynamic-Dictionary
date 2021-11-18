@@ -1,14 +1,9 @@
 package com.android.dynamic_dictionary;
-import android.icu.util.Measure;
-
-import androidx.annotation.NonNull;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -16,32 +11,15 @@ public class WordEntry {
     //--------------------------fields--------------------------//
     private String word;
     private String description;
-    private String meaningsJson;
-    private List<WordEntryMeaning> meanings;
-
+    private String wordsJson;
+    private List<WordEntryWord> wordVariations;
     //-----------------------constructor------------------------//
-    public WordEntry(String word, String description, String meaningsJson, boolean parseMeaningsNow) {
+    public WordEntry(String word, String description, String wordsJson) {
         super();
         this.word = word;
         this.description = description;
-        this.meaningsJson = meaningsJson;
-        if (parseMeaningsNow) {
-            getMeanings();
-        }
+        this.wordsJson = wordsJson;
     }
-    //-------------------------toString-------------------------//
-
-
-    @Override
-    public String toString() {
-        return "WordEntry{" +
-                "word='" + word + '\'' +
-                ", description='" + description + '\'' +
-                ", meaningsJson='" + meaningsJson + '\'' +
-                ", meanings=" + meanings +
-                '}';
-    }
-
     //-------------------getters and setters--------------------//
     public String getWord() {
         return word;
@@ -51,24 +29,39 @@ public class WordEntry {
         return description;
     }
 
-    public List<WordEntryMeaning> getMeanings() {
-        if (meanings == null) {
+    public String getWordsJson() {
+        return wordsJson;
+    }
+
+    public List<WordEntryWord> getWordVariations() {
+        if (wordVariations == null) {
+            wordVariations = new ArrayList<>();
+            // no json data = no dictionary info
+            if (wordsJson.equals(""))
+                return wordVariations;
+
             try {
-                meanings = new ArrayList<>();
-                JSONArray meaningsParsed = (new JSONArray(meaningsJson)).getJSONObject(0).getJSONArray("meanings");
-                for (int i = 0; i < meaningsParsed.length(); ++i) {
-                    meanings.add(new WordEntryMeaning(meaningsParsed.getJSONObject(i), false));
+                JSONArray wordsParsed = new JSONArray(wordsJson);
+                for (int i = 0; i < wordsParsed.length(); ++i) {
+                    wordVariations.add(new WordEntryWord(word, wordsParsed.getJSONObject(i)));
                 }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (NullPointerException e) { }
-
         }
-        return meanings;
-    }
 
-    public String getMeaningsJson() {
-        return meaningsJson;
+        return wordVariations;
+    }
+    //-------------------------toString-------------------------//
+    @Override
+    public String toString() {
+        getWordVariations();
+        return "WordEntry{" +
+                "word='" + word + '\n' +
+                ", description='" + description + '\n' +
+                ", word variations=" + wordVariations +
+                '}';
     }
 
     //-----------------------------------------------------------//

@@ -39,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COL_WORD, entry.getWord());
         cv.put(COL_DESC, entry.getDescription());
-        cv.put(COL_MEANINGS, entry.getMeaningsJson());
+        cv.put(COL_MEANINGS, entry.getWordsJson());
         long feedback = db.insert(TABLE_NAME, null, cv);
 
         if (feedback == -1)
@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
 
-                data.add(new WordEntry(cursor.getString(COL_WORD_INDEX), cursor.getString(COL_DESC_INDEX), cursor.getString(COL_MEANINGS_INDEX), false));
+                data.add(new WordEntry(cursor.getString(COL_WORD_INDEX), cursor.getString(COL_DESC_INDEX), cursor.getString(COL_MEANINGS_INDEX)));
             } while (cursor.moveToNext());
         }
 
@@ -69,7 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COL_WORD, newEntry.getWord());
         cv.put(COL_DESC, newEntry.getDescription());
-        cv.put(COL_MEANINGS, newEntry.getMeaningsJson());
+        cv.put(COL_MEANINGS, newEntry.getWordsJson());
         int updated = db.update(TABLE_NAME, cv, COL_WORD + "=?", new String[]{oldWord});
         if (updated == 0)
             return add(newEntry);

@@ -9,18 +9,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WordEntryMeaning {
+    //--------------------------fields--------------------------//
     private String partOfSpeech;
     private JSONObject meaningJson;
     private List<WordEntryDefinition> definitions;
-
-    public WordEntryMeaning(JSONObject meaningJson, boolean parseNow) {
+    //-----------------------constructor------------------------//
+    public WordEntryMeaning(JSONObject meaningJson) {
         this.meaningJson = meaningJson;
-        if (parseNow) {
-            getPartOfSpeech();
-            getDefinitions();
-        }
     }
-
+    //-------------------getters and setters--------------------//
     public String getPartOfSpeech() {
         if (partOfSpeech == null) {
             try {
@@ -42,7 +39,7 @@ public class WordEntryMeaning {
                 definitions = new ArrayList<>();
                 JSONArray defs = meaningJson.getJSONArray("definitions");
                 for (int k = 0; k < defs.length(); ++k) {
-                    definitions.add(new WordEntryDefinition(defs.getJSONObject(k), false));
+                    definitions.add(new WordEntryDefinition(defs.getJSONObject(k)));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -50,11 +47,13 @@ public class WordEntryMeaning {
         }
         return definitions;
     }
-
+    //-------------------------toString-------------------------//
     @Override
     public String toString() {
+        getPartOfSpeech();
+        getDefinitions();
         return "WordEntryMeaning{" +
-                "partOfSpeech='" + partOfSpeech + '\'' +
+                "partOfSpeech='" + partOfSpeech + '\n' +
                 ", definitions=" + definitions +
                 '}';
     }

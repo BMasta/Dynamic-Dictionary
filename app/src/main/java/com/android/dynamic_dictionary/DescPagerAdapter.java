@@ -14,11 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DescPagerAdapter extends RecyclerView.Adapter<DescPagerAdapter.ViewPagerViewHolder> {
-    private List<WordEntryMeaning> meanings;
+    private List<WordEntryWord> words;
+    private int wordNumber = 0;
     private Context parentContext;
 
-    public DescPagerAdapter(Context context, List<WordEntryMeaning> meanings) {
-        this.meanings = meanings;
+    public DescPagerAdapter(Context context, List<WordEntryWord> words) {
+        this.words = words;
         this.parentContext = context;
     }
 
@@ -43,6 +44,7 @@ public class DescPagerAdapter extends RecyclerView.Adapter<DescPagerAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewPagerViewHolder holder, int position) {
+        List <WordEntryMeaning> meanings = words.get(wordNumber).getMeanings();
         holder.textViewPartOfSpeech.setText(meanings.get(position).getPartOfSpeech());
         holder.recyclerViewDefinitions.setAdapter(new DefinitionsRecycleViewAdapter(meanings.get(position).getDefinitions()));
         holder.recyclerViewDefinitions.setLayoutManager(new LinearLayoutManager(parentContext));
@@ -50,6 +52,8 @@ public class DescPagerAdapter extends RecyclerView.Adapter<DescPagerAdapter.View
 
     @Override
     public int getItemCount() {
-        return meanings.size();
+        if (words.size() == 0)
+            return 0;
+        return words.get(wordNumber).getMeanings().size();
     }
 }

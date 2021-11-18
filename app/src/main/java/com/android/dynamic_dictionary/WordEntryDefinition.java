@@ -8,20 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WordEntryDefinition {
+    //--------------------------fields--------------------------//
     private String title;
     private String example;
     private JSONObject definitionJson;
     private List<String> synonyms;
-
-    public WordEntryDefinition(JSONObject definitionJson, boolean parseNow) {
+    //-----------------------constructor------------------------//
+    public WordEntryDefinition(JSONObject definitionJson) {
         this.definitionJson = definitionJson;
-        if (parseNow) {
-            getTitle();
-            getExample();
-            getSynonyms();
-        }
     }
-
+    //-------------------getters and setters--------------------//
     public String getTitle() {
         if (title == null) {
             try {
@@ -38,7 +34,7 @@ public class WordEntryDefinition {
             try {
                 example = definitionJson.getString("example");
             } catch (JSONException e) {
-                e.printStackTrace();
+               // no examples provided
             }
         }
         return example;
@@ -65,6 +61,9 @@ public class WordEntryDefinition {
 
     @Override
     public String toString() {
+        getTitle();
+        getExample();
+        getSynonyms();
         return "WordEntryDefinition{" +
                 "title='" + title + '\'' +
                 ", example='" + example + '\'' +

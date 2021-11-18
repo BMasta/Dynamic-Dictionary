@@ -3,6 +3,7 @@ package com.android.dynamic_dictionary;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.android.volley.Header;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public class WebDictionary {
     private WebDictionaryResponseListener listener;
+    private static boolean isPreviousResponseSuccessful = true;
     private static WebDictionary instance;
 
     public static WebDictionary getInstance(Context context) {
@@ -50,8 +52,18 @@ public class WebDictionary {
             },
             new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, "Network Error", Toast.LENGTH_SHORT).show();
+            public void onErrorResponse(VolleyError volleyError) {
+                if (volleyError.networkResponse != null) {
+                    if (volleyError.networkResponse.statusCode != 404) {
+                        Toast.makeText(context, "Dictionary response error (" + volleyError.networkResponse.statusCode + ").", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(context, "Couldn't find " + word + " in the dictionary.", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (isPreviousResponseSuccessful){
+                    isPreviousResponseSuccessful = false;
+                    Toast.makeText(context, "No response from the dictionary. Check your internet connection.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         queue.add(stringRequest);

@@ -16,7 +16,7 @@ public class WordSharedActivity extends Activity implements WebDictionary.WebDic
         Intent intent = getIntent();
         String word = intent.getClipData().getItemAt(0).getText().toString().split("\n")[0].split("\"")[1];
         DatabaseHelper dbHelper = new DatabaseHelper(this);
-        dbHelper.add(new WordEntry(word, "", "", false));
+        dbHelper.add(new WordEntry(word, "", ""));
         Toast.makeText(this, "Saved " + " " + word, Toast.LENGTH_SHORT).show();
         this.finish();
     }
