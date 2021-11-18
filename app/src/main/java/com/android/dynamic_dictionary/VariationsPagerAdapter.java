@@ -7,29 +7,45 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.List;
 
-public class VariationsPagerAdapter extends FragmentStateAdapter {
+public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPagerAdapter.ViewPagerViewHolder> {
     private List<WordEntryVariation> variations;
+    private Context parentContext;
 
-    public VariationsPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<WordEntryVariation> variations) {
-        super(fragmentManager, lifecycle);
+    public VariationsPagerAdapter(Context context, List<WordEntryVariation> variations) {
         this.variations = variations;
+        this.parentContext = context;
+    }
+
+    public class ViewPagerViewHolder extends RecyclerView.ViewHolder {
+        private ViewPager2 pagerMeanings;
+
+        public ViewPagerViewHolder(@NonNull View itemView) {
+            super(itemView);
+            pagerMeanings = itemView.findViewById(R.id.pagerMeanings);
+        }
     }
 
     @NonNull
     @Override
-    public Fragment createFragment(int position) {
-        return new VariationFragment(variations.get(position));
+    public ViewPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_variation_fragment, parent, false);
+        return new ViewPagerViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewPagerViewHolder holder, int position) {
+        MeaningsPagerAdapter meaningsPagerAdapter = new MeaningsPagerAdapter(parentContext, variations.get(position).getMeanings());
+        holder.pagerMeanings.setAdapter(meaningsPagerAdapter);
     }
 
     @Override
     public int getItemCount() {
-       return variations.size();
+        return variations.size();
     }
 }

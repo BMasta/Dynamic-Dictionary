@@ -127,24 +127,7 @@ public class MainActivity extends AppCompatActivity
         constraintUpdate();
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
         ((TextView) findViewById(R.id.textViewWord)).setText(e.getWord());
-        Lifecycle l = new Lifecycle() {
-            @Override
-            public void addObserver(@NonNull LifecycleObserver observer) {
-
-            }
-
-            @Override
-            public void removeObserver(@NonNull LifecycleObserver observer) {
-
-            }
-
-            @NonNull
-            @Override
-            public State getCurrentState() {
-                return null;
-            }
-        }
-        pagerAdapter = new VariationsPagerAdapter(getSupportFragmentManager(), e.getWordVariations().get(0));
+        pagerAdapter = new VariationsPagerAdapter(this, e.getWordVariations());
         pagerVariations.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = findViewById(R.id.tabLayoutVariations);
