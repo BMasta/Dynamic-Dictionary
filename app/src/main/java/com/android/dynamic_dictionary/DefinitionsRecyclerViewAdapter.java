@@ -8,15 +8,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class DefinitionsRecycleViewAdapter extends RecyclerView.Adapter<DefinitionsRecycleViewAdapter.RecycleViewHolder> implements View.OnClickListener, View.OnLongClickListener {
+public class DefinitionsRecyclerViewAdapter extends RecyclerView.Adapter<DefinitionsRecyclerViewAdapter.RecycleViewHolder> implements View.OnClickListener, View.OnLongClickListener {
     private List<WordEntryDefinition> defs;
     private boolean isDefinition;
     private RecycleViewHolder holderToFlip;
 
-    public DefinitionsRecycleViewAdapter(List<WordEntryDefinition> defs) {
+    public DefinitionsRecyclerViewAdapter(List<WordEntryDefinition> defs) {
         this.defs = defs;
         this.isDefinition = true;
     }
@@ -49,7 +48,7 @@ public class DefinitionsRecycleViewAdapter extends RecyclerView.Adapter<Definiti
     public class RecycleViewHolder extends RecyclerView.ViewHolder {
         private TextView textViewDefinition, textViewType;
 
-        public RecycleViewHolder(@NonNull View itemView, DefinitionsRecycleViewAdapter adapter) {
+        public RecycleViewHolder(@NonNull View itemView, DefinitionsRecyclerViewAdapter adapter) {
             super(itemView);
             itemView.setOnClickListener(adapter);
             textViewType = itemView.findViewById(R.id.textViewDefinition);
@@ -61,7 +60,7 @@ public class DefinitionsRecycleViewAdapter extends RecyclerView.Adapter<Definiti
     @Override
     public RecycleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_definition_item, parent, false);
-        return new DefinitionsRecycleViewAdapter.RecycleViewHolder(view, this);
+        return new DefinitionsRecyclerViewAdapter.RecycleViewHolder(view, this);
     }
 
     @Override

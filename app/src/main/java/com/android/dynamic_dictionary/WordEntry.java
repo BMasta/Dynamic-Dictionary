@@ -12,7 +12,7 @@ public class WordEntry {
     private String word;
     private String description;
     private String wordsJson;
-    private List<WordEntryWord> wordVariations;
+    private List<WordEntryVariation> wordVariations;
     //-----------------------constructor------------------------//
     public WordEntry(String word, String description, String wordsJson) {
         super();
@@ -33,7 +33,7 @@ public class WordEntry {
         return wordsJson;
     }
 
-    public List<WordEntryWord> getWordVariations() {
+    public List<WordEntryVariation> getWordVariations() {
         if (wordVariations == null) {
             wordVariations = new ArrayList<>();
             // no json data = no dictionary info
@@ -43,7 +43,7 @@ public class WordEntry {
             try {
                 JSONArray wordsParsed = new JSONArray(wordsJson);
                 for (int i = 0; i < wordsParsed.length(); ++i) {
-                    wordVariations.add(new WordEntryWord(word, wordsParsed.getJSONObject(i)));
+                    wordVariations.add(new WordEntryVariation(word, wordsParsed.getJSONObject(i)));
                 }
 
             } catch (JSONException e) {

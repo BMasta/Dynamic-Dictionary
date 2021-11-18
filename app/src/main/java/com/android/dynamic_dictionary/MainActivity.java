@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
@@ -20,6 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +41,9 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton buttonAdd;
     private ConstraintLayout constraintLayoutRoot;
     private ConstraintLayout constraintLayoutDesc;
-    private ViewPager2 pagerDesc;
+    private ViewPager2 pagerVariations;
     private ConstraintSet setDescVisible, setDescInvisible;
-    private DescPagerAdapter pagerAdapter;
+    private VariationsPagerAdapter pagerAdapter;
 
     // local lists
     private List<WordEntry> words;
@@ -67,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         buttonAdd = findViewById(R.id.floatingActionButtonAdd);
         constraintLayoutRoot = findViewById(R.id.constrainedLayoutRoot);
         constraintLayoutDesc = findViewById(R.id.constrainedLayoutDesc);
-        pagerDesc = findViewById(R.id.pagerDesc);
+        pagerVariations = findViewById(R.id.pagerVariations);
         //-----------------------------define global variables-----------------------------//
         words = new ArrayList<>();
         dbHelper = new DatabaseHelper(MainActivity.this);
@@ -121,11 +125,29 @@ public class MainActivity extends AppCompatActivity
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         constraintLayoutDesc.setVisibility(View.VISIBLE);
         constraintUpdate();
-        TextView textViewWord = findViewById(R.id.textViewWord);
-        textViewWord.setText((String)listViewWords.getItemAtPosition(position));
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
-        pagerAdapter = new DescPagerAdapter(this, e.getWordVariations());
-        pagerDesc.setAdapter(pagerAdapter);
+        ((TextView) findViewById(R.id.textViewWord)).setText(e.getWord());
+        Lifecycle l = new Lifecycle() {
+            @Override
+            public void addObserver(@NonNull LifecycleObserver observer) {
+
+            }
+
+            @Override
+            public void removeObserver(@NonNull LifecycleObserver observer) {
+
+            }
+
+            @NonNull
+            @Override
+            public State getCurrentState() {
+                return null;
+            }
+        }
+        pagerAdapter = new VariationsPagerAdapter(getSupportFragmentManager(), e.getWordVariations().get(0));
+        pagerVariations.setAdapter(pagerAdapter);
+
+        TabLayout tabLayout = findViewById(R.id.tabLayoutVariations);
     }
 
     @Override

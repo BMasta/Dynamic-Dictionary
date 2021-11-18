@@ -7,18 +7,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WordEntryWord {
+public class WordEntryVariation {
     //--------------------------fields--------------------------//
     private String wordVariation;
     private JSONObject wordJson;
     private List<WordEntryMeaning> meanings;
     //-----------------------constructor------------------------//
-    public WordEntryWord(String wordVariety, JSONObject wordJson) {
+    public WordEntryVariation(String wordVariety, JSONObject wordJson) {
         this.wordVariation = wordVariety;
         this.wordJson = wordJson;
     }
     //-------------------getters and setters--------------------//
-    public String getWordVariety() {
+    public String getWordVariation() {
         return wordVariation;
     }
 
@@ -45,7 +45,7 @@ public class WordEntryWord {
     @Override
     public String toString() {
         getMeanings();
-        return "WordEntryWord{" +
+        return "WordEntryVariation{" +
                 "wordVariation='" + wordVariation + '\n' +
                 ", meanings=" + meanings +
                 '}';

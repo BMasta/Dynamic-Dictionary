@@ -10,16 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class DescPagerAdapter extends RecyclerView.Adapter<DescPagerAdapter.ViewPagerViewHolder> {
-    private List<WordEntryWord> words;
+public class MeaningsPagerAdapter extends RecyclerView.Adapter<MeaningsPagerAdapter.ViewPagerViewHolder> {
+    private List<WordEntryMeaning> meanings;
     private int wordNumber = 0;
     private Context parentContext;
 
-    public DescPagerAdapter(Context context, List<WordEntryWord> words) {
-        this.words = words;
+    public MeaningsPagerAdapter(Context context, List<WordEntryMeaning> meanings) {
+        this.meanings = meanings;
         this.parentContext = context;
     }
 
@@ -38,22 +37,19 @@ public class DescPagerAdapter extends RecyclerView.Adapter<DescPagerAdapter.View
     @NonNull
     @Override
     public ViewPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_desc_fragment, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_meaning_fragment, parent, false);
         return new ViewPagerViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewPagerViewHolder holder, int position) {
-        List <WordEntryMeaning> meanings = words.get(wordNumber).getMeanings();
         holder.textViewPartOfSpeech.setText(meanings.get(position).getPartOfSpeech());
-        holder.recyclerViewDefinitions.setAdapter(new DefinitionsRecycleViewAdapter(meanings.get(position).getDefinitions()));
+        holder.recyclerViewDefinitions.setAdapter(new DefinitionsRecyclerViewAdapter(meanings.get(position).getDefinitions()));
         holder.recyclerViewDefinitions.setLayoutManager(new LinearLayoutManager(parentContext));
     }
 
     @Override
     public int getItemCount() {
-        if (words.size() == 0)
-            return 0;
-        return words.get(wordNumber).getMeanings().size();
+        return meanings.size();
     }
 }
