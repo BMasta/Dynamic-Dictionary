@@ -13,15 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-public class EditWordDialog extends AppCompatDialogFragment {
-    private EditText editTextWord, editTextDesc;
+public class EditDescDialog extends AppCompatDialogFragment {
+    private EditText editTextDesc;
     private EditWordDialogListener listener;
-    private String oldWordHint, oldDescHint;
+    private String oldDescHint;
     private int pos;
 
-    public EditWordDialog(int position, String oldWord, String oldDesc) {
+    public EditDescDialog(int position, String oldWord, String oldDesc) {
         super();
-        oldWordHint = oldWord;
         oldDescHint = oldDesc;
         pos = position;
     }
@@ -31,26 +30,23 @@ public class EditWordDialog extends AppCompatDialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.layout_dialog, null);
+        View view = inflater.inflate(R.layout.layout_edit_desc_dialog, null);
         builder.setView(view)
-                .setTitle("Edit Word")
+                .setTitle("Edit Notes")
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
                 })
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton("save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String word = editTextWord.getText().toString();
                         String desc = editTextDesc.getText().toString();
-                        listener.handleEditDialogData(pos, word, desc);
+                        listener.handleEditDialogData(pos, desc);
                     }
                 });
-        editTextWord = view.findViewById(R.id.editTextWord);
-        editTextDesc = view.findViewById(R.id.editTextDesc);
-        editTextWord.setText(oldWordHint);
+        editTextDesc = view.findViewById(R.id.editTextEditDesc);
         editTextDesc.setText(oldDescHint);
 
         return builder.create();
@@ -68,6 +64,6 @@ public class EditWordDialog extends AppCompatDialogFragment {
     }
 
     public interface EditWordDialogListener {
-        void handleEditDialogData(int position, String word, String desc);
+        void handleEditDialogData(int position, String desc);
     }
 }

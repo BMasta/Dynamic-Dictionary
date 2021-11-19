@@ -30,12 +30,12 @@
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constrainedLayoutDesc"
+        android:id="@+id/layoutDesc"
         android:layout_width="match_parent"
         android:layout_height="500dp"
         android:layout_margin="15dp"
         android:layout_weight="5"
-        android:background="@drawable/rect"
+        android:background="@drawable/rect_white"
         android:elevation="40dp"
         android:stateListAnimator="@animator/nav_default_enter_anim"
         android:visibility="visible"

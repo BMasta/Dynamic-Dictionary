@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:paddingTop="3dp">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.05">
+
         <TextView
-            android:id="@+id/textViewWord"
+            android:id="@+id/textViewVariation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:textAlignment="center"
-            android:layout_centerInParent="true"
             android:textColor="@color/dark_grey"
             android:textSize="30sp"
             android:textStyle="bold" />
-    </RelativeLayout>
 
     <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutVariations"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:id="@+id/tabLayoutVariations"/>
+        android:layout_height="40dp"
+        app:tabGravity="center"
+        app:tabMode="scrollable"
+        android:layout_below="@id/textViewVariation"/>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/pagerMeanings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="11"/>
-</LinearLayout>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pagerMeanings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tabLayoutVariations"/>
+</RelativeLayout>

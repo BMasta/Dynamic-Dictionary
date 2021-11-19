@@ -4,26 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +25,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener, AdapterView.OnItemClickListener,
-        NewWordDialog.NewWordDialogListener, EditWordDialog.EditWordDialogListener,
+        NewWordDialog.NewWordDialogListener, EditDescDialog.EditWordDialogListener,
         WebDictionary.WebDictionaryResponseListener {
     //***********************************Global scope variables***********************************//
 
@@ -70,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         listViewWords = findViewById(R.id.listViewWords);
         buttonAdd = findViewById(R.id.floatingActionButtonAdd);
         constraintLayoutRoot = findViewById(R.id.constrainedLayoutRoot);
-        constraintLayoutDesc = findViewById(R.id.constrainedLayoutDesc);
+        constraintLayoutDesc = findViewById(R.id.layoutDesc);
         pagerVariations = findViewById(R.id.pagerVariations);
         //-----------------------------define global variables-----------------------------//
         words = new ArrayList<>();
@@ -109,14 +102,6 @@ public class MainActivity extends AppCompatActivity
                 openNewWordDialog();
                 break;
             default:
-                //--------------------Hide keyboard on outside click --------------------//
-                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(
-                        Activity.INPUT_METHOD_SERVICE);
-                if (inputMethodManager.isAcceptingText()) {
-                    inputMethodManager.hideSoftInputFromWindow(
-                            getCurrentFocus().getWindowToken(), 0);
-                }
-                //-----------------------------------------------------------------------//
                 break;
         }
     }
@@ -126,8 +111,10 @@ public class MainActivity extends AppCompatActivity
         constraintLayoutDesc.setVisibility(View.VISIBLE);
         constraintUpdate();
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
-        pagerAdapter = new VariationsPagerAdapter(this, e.getWordVariations());
+        pagerAdapter = new VariationsPagerAdapter(this, e.getWordVariations(), e.getWord(), e.getDescription());
         pagerVariations.setAdapter(pagerAdapter);
+        if (e.getWordVariations().size() != 0)
+            pagerVariations.setCurrentItem(1, false);
     }
 
     @Override
@@ -145,7 +132,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.optionEdit:
                 String oldWord = (String) listViewWords.getItemAtPosition(info.position);
                 String oldDesc = words.get(getIndexByWord(words, oldWord)).getDescription();
-                openEditWordDialog(info.position, oldWord, oldDesc);
+                openEditWordDialog(getIndexByWord(words, oldWord), oldWord, oldDesc);
                 break;
             case R.id.optionDelete:
                 deleteWord((String) listViewWords.getItemAtPosition(info.position), true);
@@ -165,8 +152,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void openEditWordDialog(int position, String oldWord, String oldDesc) {
-        EditWordDialog editWordDialog = new EditWordDialog(position, oldWord, oldDesc);
-        editWordDialog.show(getSupportFragmentManager(), "Edit Word Dialog");
+        EditDescDialog editDescDialog = new EditDescDialog(position, oldWord, oldDesc);
+        editDescDialog.show(getSupportFragmentManager(), "Edit Word Dialog");
     }
 
     //***************************************data handlers****************************************//
@@ -178,8 +165,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void handleEditDialogData(int position, String word, String desc) {
-        editWord(position, word, desc, true);
+    public void handleEditDialogData(int position, String desc) {
+        editWord(position, words.get(position).getWord(), desc, true);
         listUpdate();
     }
 
@@ -202,15 +189,23 @@ public class MainActivity extends AppCompatActivity
      * @return Was the addition successful
      */
     public boolean addWord(String wd, String desc, String meaningsJson, boolean toastFeedback) {
-        WordEntry newEntry = new WordEntry(wd, desc, meaningsJson);
-        boolean added = dbHelper.add(newEntry);
-        if (toastFeedback) {
-            if (added)
-                Toast.makeText(MainActivity.this, "Successfully added new element", Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(MainActivity.this, "Failed to add the element", Toast.LENGTH_SHORT).show();
+        // skip blank words
+        if (wd.equals("")) {
+            if (toastFeedback)
+                Toast.makeText(this, "Word can't be blank", Toast.LENGTH_SHORT).show();
+            return false;
         }
-        if (added) {
+        WordEntry newEntry = new WordEntry(wd, desc, meaningsJson);
+        DatabaseHelper.Returns added = dbHelper.add(newEntry);
+        if (toastFeedback) {
+            if (added == DatabaseHelper.Returns.ADDED)
+                Toast.makeText(MainActivity.this, "Successfully added new element", Toast.LENGTH_SHORT).show();
+            else if (added == DatabaseHelper.Returns.NOT_ADDED_ERROR)
+                Toast.makeText(MainActivity.this, "Failed to add the element", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(MainActivity.this, "Word already exists", Toast.LENGTH_SHORT).show();
+        }
+        if (added == DatabaseHelper.Returns.ADDED) {
             words.add(newEntry);
             return true;
         } else return false;
@@ -228,29 +223,27 @@ public class MainActivity extends AppCompatActivity
      */
     public boolean editWord(String oldWord, String newWord, String newDesc, boolean toastFeedback) {
         WordEntry entry = new WordEntry(newWord, newDesc, words.get(getIndexByWord(words, oldWord)).getWordsJson());
-        boolean edited = dbHelper.edit(oldWord, entry);
-        if (edited) {
+        DatabaseHelper.Returns updated = dbHelper.update(oldWord, entry);
+        if (updated == DatabaseHelper.Returns.UPDATED) {
             words.set(getIndexByWord(words, oldWord), entry);
-
             return true;
         } else
             return false;
     }
 
     public boolean editWord(int position, String newWord, String newDesc, boolean toastFeedback) {
-        return editWord((String) listViewWords.getItemAtPosition(position), newWord, newDesc, toastFeedback);
+        return editWord(words.get(position).getWord(), newWord, newDesc, toastFeedback);
     }
 
     public boolean editWord(int position, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
-        return editWord((String) listViewWords.getItemAtPosition(position), newWord, newDesc, newMeaningsJson, toastFeedback);
+        return editWord(words.get(position).getWord(), newWord, newDesc, newMeaningsJson, toastFeedback);
     }
 
     public boolean editWord(String oldWord, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
         WordEntry entry = new WordEntry(newWord, newDesc, newMeaningsJson);
-        boolean edited = dbHelper.edit(oldWord, entry);
-        if (edited) {
+        DatabaseHelper.Returns updated = dbHelper.update(oldWord, entry);
+        if (updated == DatabaseHelper.Returns.UPDATED) {
             words.set(getIndexByWord(words, oldWord), entry);
-
             return true;
         } else
             return false;
@@ -266,7 +259,7 @@ public class MainActivity extends AppCompatActivity
      */
     public int deleteWord(String wd, boolean toastFeedback) {
         int deleted = 0;
-        if (dbHelper.delete(wd)) {
+        if (dbHelper.delete(wd) == DatabaseHelper.Returns.DELETED) {
             while (true) {
                 int i = getIndexByWord(words, wd);
                 if (i == -1)
@@ -320,7 +313,7 @@ public class MainActivity extends AppCompatActivity
         setDescInvisible = new ConstraintSet();
         setDescVisible.clone(constraintLayoutRoot);
         setDescInvisible.clone(constraintLayoutRoot);
-        setDescVisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutDesc, ConstraintSet.TOP);
+        setDescVisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.layoutDesc, ConstraintSet.TOP);
         setDescVisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.7f);
         setDescInvisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutRoot, ConstraintSet.BOTTOM);
         setDescInvisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.9f);
