@@ -1,22 +1,19 @@
 package com.android.dynamic_dictionary;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class WordSharedActivity extends AppCompatActivity implements WebDictionary.WebDictionaryResponseListener {
-    private ViewPager2 pagerVariations;
     private VariationsPagerAdapterNoNotes pagerAdapter;
     private String responseData;
 
@@ -34,7 +31,7 @@ public class WordSharedActivity extends AppCompatActivity implements WebDictiona
         final String word = wordTmp;
 
         // request definition from the web dictionary
-        WebDictionary.sendDefinitionRequest(this, word);
+        WebDictionary.sendDefinitionRequest(this, word, null);
 
         findViewById(R.id.buttonWordShared_Cancel).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,12 +48,11 @@ public class WordSharedActivity extends AppCompatActivity implements WebDictiona
         });
     }
 
-
     public void addWord(String word) {
         // add word
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         if (!word.equals("")) {
-            DatabaseHelper.Returns added = dbHelper.add(new WordEntry(word, "", ""));
+            DatabaseHelper.Returns added = dbHelper.add(new WordEntry(word, "", responseData));
             if (added == DatabaseHelper.Returns.ADDED)
                 Toast.makeText(this, "Saved " + word, Toast.LENGTH_SHORT).show();
             else if (added == DatabaseHelper.Returns.NOT_ADDED_ERROR)
@@ -69,38 +65,54 @@ public class WordSharedActivity extends AppCompatActivity implements WebDictiona
     }
 
     @Override
-    public void handleResponseData(String word, String responseData, WebDictionary.Responses responseType) {
+    public void handleResponseData(String word, String responseData, WebDictionary.Responses responseType, VariationsPagerAdapter.ViewPagerViewHolder holder) {
+        Context context = this;
         this.responseData = responseData;
-        findViewById(R.id.progressBarWordShared).setVisibility(View.GONE);
+        ProgressBar progressBar = findViewById(R.id.progressBarWordShared_Dict);
+        TextView textView = findViewById(R.id.textViewWordShared_DictError);
+        Button button = findViewById(R.id.buttonWordShared_Retry);
+        ViewPager2 pager = findViewById(R.id.pagerWordShared_Variations);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pager.setVisibility(View.GONE);
+                button.setVisibility(View.INVISIBLE);
+                button.setClickable(false);
+                progressBar.setVisibility(View.VISIBLE);
+                WebDictionary.sendDefinitionRequest(context, word, holder);
+            }
+        });
+        progressBar.setVisibility(View.GONE);
+        button.setClickable(true);
         switch (responseType) {
             case SUCCESS:
-                findViewById(R.id.pagerWordShared_Variations).setVisibility(View.VISIBLE);
-                findViewById(R.id.textViewWordShared_DictError).setVisibility(View.GONE);
-                findViewById(R.id.buttonWordShared_Retry).setVisibility(View.GONE);
+                pager.setVisibility(View.VISIBLE);
+                textView.setVisibility(View.GONE);
+                button.setVisibility(View.GONE);
 
-                pagerVariations = findViewById(R.id.pagerWordShared_Variations);
                 WordEntry e = new WordEntry(word, "", responseData);
                 pagerAdapter = new VariationsPagerAdapterNoNotes(this, e.getWordVariations(), e.getWord(), e.getDescription());
-                pagerVariations.setAdapter(pagerAdapter);
+                pager.setAdapter(pagerAdapter);
                 break;
             case NO_DATA:
-                findViewById(R.id.pagerWordShared_Variations).setVisibility(View.GONE);
-                findViewById(R.id.textViewWordShared_DictError).setVisibility(View.VISIBLE);
-                findViewById(R.id.buttonWordShared_Retry).setVisibility(View.VISIBLE);
-
-                ((TextView)findViewById(R.id.textViewWordShared_DictError)).setText("Undefined word");
+                pager.setVisibility(View.GONE);
+                button.setVisibility(View.VISIBLE);
+                textView.setText("Undefined word");
                 break;
             case RESPONSE_ERROR:
-                findViewById(R.id.pagerWordShared_Variations).setVisibility(View.GONE);
-                findViewById(R.id.textViewWordShared_DictError).setVisibility(View.VISIBLE);
-                findViewById(R.id.buttonWordShared_Retry).setVisibility(View.VISIBLE);
-                ((TextView)findViewById(R.id.textViewWordShared_DictError)).setText("Dictionary error");
+                pager.setVisibility(View.GONE);
+                button.setVisibility(View.VISIBLE);
+                textView.setText("Dictionary error");
                 break;
             case NO_RESPONSE:
-                findViewById(R.id.pagerWordShared_Variations).setVisibility(View.GONE);;
-                findViewById(R.id.textViewWordShared_DictError).setVisibility(View.VISIBLE);
-                findViewById(R.id.buttonWordShared_Retry).setVisibility(View.VISIBLE);
-                ((TextView)findViewById(R.id.textViewWordShared_DictError)).setText("No Internet");
+                pager.setVisibility(View.GONE);
+                button.setVisibility(View.VISIBLE);
+                textView.setText("No Internet");
                 break;
         }
     }

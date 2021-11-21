@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
         dbSync();
         listUpdate();
         //---------------------------------------------------------------------------------//
-        WebDictionary.sendMultipleDefinitionRequests(this, words);
+        WebDictionary.updateDefinitions(this, words);
     }
 
     @Override
@@ -113,8 +113,7 @@ public class MainActivity extends AppCompatActivity
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
         pagerAdapter = new VariationsPagerAdapter(this, e.getWordVariations(), e.getWord(), e.getDescription());
         pagerVariations.setAdapter(pagerAdapter);
-        if (e.getWordVariations().size() != 0)
-            pagerVariations.setCurrentItem(1, false);
+        pagerVariations.setCurrentItem(1, false);
     }
 
     @Override
@@ -160,7 +159,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void handleNewDialogData(String word, String desc) {
         addWord(word, desc, "", true);
-        WebDictionary.sendDefinitionRequest(this, word);
+        WebDictionary.sendDefinitionRequest(this, word, null);
         listUpdate();
     }
 
@@ -171,7 +170,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void handleResponseData(String word, String responseData, WebDictionary.Responses responseType) {
+    public void handleResponseData(String word, String responseData, WebDictionary.Responses responseType, VariationsPagerAdapter.ViewPagerViewHolder holder) {
         switch (responseType) {
             case SUCCESS:
                 WordEntry we = new WordEntry(word, "", responseData);
@@ -187,7 +186,8 @@ public class MainActivity extends AppCompatActivity
 
                 break;
         }
-
+        if (holder != null)
+            pagerAdapter.applyDictUpdate(word, responseData, responseType, holder);
     }
 
     //********************************word manipulation functions*********************************//
@@ -338,4 +338,8 @@ public class MainActivity extends AppCompatActivity
             setDescInvisible.applyTo(constraintLayoutRoot);
     }
     //********************************************************************************************//
+
+    public interface MainActivityInterface {
+        public void applyDictUpdate(String word, String responseData, WebDictionary.Responses responseType, VariationsPagerAdapter.ViewPagerViewHolder holder);
+    }
 }
