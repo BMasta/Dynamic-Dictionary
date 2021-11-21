@@ -14,14 +14,21 @@
         <entry key="..\:/Users/bmast/AndroidStudioProjects/Flashcard_Saver/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3828125" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/ic_launcher_background.xml" value="0.19144144144144143" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/rect.xml" value="0.19144144144144143" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/rect_dark_grey.xml" value="0.19144144144144143" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/rect_green.xml" value="0.3310810810810811" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/rect_light_grey.xml" value="0.19144144144144143" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/rect_red.xml" value="0.3310810810810811" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/drawable/rect_white.xml" value="0.3310810810810811" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/font/architects_daughter_regular.xml" value="0.2036036036036036" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout-land/activity_main.xml" value="0.35495495495495494" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout-land/activity_word_shared.xml" value="0.3824324324324324" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/activity_main.xml" value="0.3171171171171171" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/activity_word_shared.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_definition_item.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_desc_fragment.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_dialog.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_edit_desc.xml" value="0.25" />
+        <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_edit_desc_dialog.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_info_dialog.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_meaning_fragment.xml" value="0.3171171171171171" />
         <entry key="..\:/Users/bmast/AndroidStudioProjects/dynamic_dictionary/app/src/main/res/layout/layout_meaning_item.xml" value="0.25" />

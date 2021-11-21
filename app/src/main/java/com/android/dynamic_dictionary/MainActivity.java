@@ -171,10 +171,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void handleResponseData(String word, String response) {
-        WordEntry we = new WordEntry(word, "", response);
-        editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), response, false);
-        //Toast.makeText(this, "Assigned meanings for \"" + word + "\"", Toast.LENGTH_SHORT).show();
+    public void handleResponseData(String word, String responseData, WebDictionary.Responses responseType) {
+        switch (responseType) {
+            case SUCCESS:
+                WordEntry we = new WordEntry(word, "", responseData);
+                editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), responseData, false);
+                break;
+            case NO_DATA:
+
+                break;
+            case RESPONSE_ERROR:
+
+                break;
+            case NO_RESPONSE:
+
+                break;
+        }
+
     }
 
     //********************************word manipulation functions*********************************//

@@ -16,28 +16,18 @@ import java.util.List;
 public class WebDictionary {
     private WebDictionaryResponseListener listener;
     private static boolean isPreviousResponseSuccessful = true;
-    private static WebDictionary instance;
-
-    public static WebDictionary getInstance(Context context) {
-        if (instance == null) {
-            instance = new WebDictionary(context);
-        }
-
-        return instance;
-    }
-
-    private WebDictionary(Context context) {
-        try {
-            listener = (WebDictionaryResponseListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement WebDictionaryResponseListener");
-        }
-    }
 
     public static void sendMultipleDefinitionRequests(Context context, List<WordEntry> words) {
         for (int i = 0; i < words.size(); ++i) {
             sendDefinitionRequest(context, words.get(i).getWord());
         }
+    }
+
+    public enum Responses {
+        SUCCESS,
+        NO_DATA,
+        RESPONSE_ERROR,
+        NO_RESPONSE
     }
 
     public static void sendDefinitionRequest(Context context, String word){
@@ -47,7 +37,7 @@ public class WebDictionary {
             new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    getInstance(context).listener.handleResponseData(word, response);
+                    ((WebDictionaryResponseListener)context).handleResponseData(word, response, Responses.SUCCESS);
                 }
             },
             new Response.ErrorListener() {
@@ -55,14 +45,13 @@ public class WebDictionary {
             public void onErrorResponse(VolleyError volleyError) {
                 if (volleyError.networkResponse != null) {
                     if (volleyError.networkResponse.statusCode != 404) {
-                        Toast.makeText(context, "Dictionary response error (" + volleyError.networkResponse.statusCode + ").", Toast.LENGTH_SHORT).show();
+                        ((WebDictionaryResponseListener)context).handleResponseData(word, null, Responses.RESPONSE_ERROR);
                     }
                     else {
-                        Toast.makeText(context, "Couldn't find " + word + " in the dictionary.", Toast.LENGTH_SHORT).show();
+                        ((WebDictionaryResponseListener)context).handleResponseData(word, null, Responses.NO_DATA);
                     }
                 } else if (isPreviousResponseSuccessful){
-                    isPreviousResponseSuccessful = false;
-                    Toast.makeText(context, "No response from the dictionary. Check your internet connection.", Toast.LENGTH_SHORT).show();
+                    ((WebDictionaryResponseListener)context).handleResponseData(word, null, Responses.NO_RESPONSE);
                 }
             }
         });
@@ -70,6 +59,6 @@ public class WebDictionary {
     }
 
     interface WebDictionaryResponseListener {
-        void handleResponseData(String word, String response);
+        void handleResponseData(String word, String responseData, Responses responseType);
     }
 }

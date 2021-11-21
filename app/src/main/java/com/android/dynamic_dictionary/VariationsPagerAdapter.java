@@ -80,17 +80,6 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
     }
 
     @Override
-    public void onViewRecycled(@NonNull ViewPagerViewHolder holder) {
-        super.onViewRecycled(holder);
-        try {
-            desc = holder.textViewDesc.getText().toString();
-        } catch (NullPointerException e) {}
-    }
-
-
-
-
-    @Override
     public int getItemCount() {
         return variations.size() + 1;
     }
