@@ -1,24 +1,27 @@
 package com.android.dynamic_dictionary;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WordEntryMeaning {
     //--------------------------fields--------------------------//
     private String partOfSpeech;
-    private JSONObject meaningJson;
+    private final JSONObject meaningJson;
     private List<WordEntryDefinition> definitions;
+
     //-----------------------constructor------------------------//
     public WordEntryMeaning(JSONObject meaningJson) {
         this.meaningJson = meaningJson;
         getPartOfSpeech();
         getDefinitions();
     }
+
     //-------------------getters and setters--------------------//
     public String getPartOfSpeech() {
         if (partOfSpeech == null) {
@@ -29,10 +32,6 @@ public class WordEntryMeaning {
             }
         }
         return partOfSpeech;
-    }
-
-    public JSONObject getMeaningJson() {
-        return meaningJson;
     }
 
     public List<WordEntryDefinition> getDefinitions() {
@@ -49,14 +48,15 @@ public class WordEntryMeaning {
         }
         return definitions;
     }
+
     //-------------------add more definitions-------------------//
     public void addDefinitions(List<WordEntryDefinition> definitionsToAdd) {
-        for (int i = 0; i < definitionsToAdd.size(); ++i) {
-            definitions.add(definitionsToAdd.get(i));
-        }
+        definitions.addAll(definitionsToAdd);
 
     }
+
     //-------------------------toString-------------------------//
+    @NonNull
     @Override
     public String toString() {
         getPartOfSpeech();

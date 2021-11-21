@@ -3,25 +3,14 @@ package com.android.dynamic_dictionary;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.view.ViewGroupCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.transition.TransitionManager;
 import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -46,7 +35,6 @@ public class MainActivity extends AppCompatActivity
     private ConstraintLayout constraintLayoutRoot;
     private ConstraintLayout constraintLayoutDesc;
     private ViewPager2 pagerVariations;
-    private ConstraintSet setDescVisible, setDescInvisible;
     private VariationsPagerAdapter pagerAdapter;
 
     // local lists
@@ -107,12 +95,8 @@ public class MainActivity extends AppCompatActivity
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.floatingActionButtonAdd:
-                openNewWordDialog();
-                break;
-            default:
-                break;
+        if (v.getId() == R.id.floatingActionButtonAdd) {
+            openNewWordDialog();
         }
     }
 
@@ -144,7 +128,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     @Override
     public void onBackPressed() {
         if (constraintLayoutDesc.getVisibility() == View.VISIBLE) {
@@ -173,17 +156,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.optionEdit:
-                String oldWord = (String) listViewWords.getItemAtPosition(info.position);
-                String oldDesc = words.get(getIndexByWord(words, oldWord)).getDescription();
-                openEditWordDialog(getIndexByWord(words, oldWord), oldWord, oldDesc);
-                break;
-            case R.id.optionDelete:
-                deleteWord((String) listViewWords.getItemAtPosition(info.position), true);
-                break;
-            default:
-                break;
+        if (item.getItemId() == R.id.optionEdit) {
+            String oldWord = (String) listViewWords.getItemAtPosition(info.position);
+            String oldDesc = words.get(getIndexByWord(words, oldWord)).getDescription();
+            openEditWordDialog(getIndexByWord(words, oldWord), oldDesc);
+        } else {
+            deleteWord((String) listViewWords.getItemAtPosition(info.position), true);
         }
         listUpdate();
 
@@ -196,8 +174,8 @@ public class MainActivity extends AppCompatActivity
         newWordDialog.show(getSupportFragmentManager(), "New Word Dialog");
     }
 
-    public void openEditWordDialog(int position, String oldWord, String oldDesc) {
-        EditDescDialog editDescDialog = new EditDescDialog(position, oldWord, oldDesc);
+    public void openEditWordDialog(int position, String oldDesc) {
+        EditDescDialog editDescDialog = new EditDescDialog(position, oldDesc);
         editDescDialog.show(getSupportFragmentManager(), "Edit Word Dialog");
     }
 
@@ -211,7 +189,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void handleEditDialogData(int position, String desc) {
-        editWord(position, words.get(position).getWord(), desc, true);
+        editWord(position, words.get(position).getWord(), desc);
         listUpdate();
     }
 
@@ -219,8 +197,7 @@ public class MainActivity extends AppCompatActivity
     public void handleResponseData(String word, String responseData, WebDictionary.Responses responseType, VariationsPagerAdapter.ViewPagerViewHolder holder) {
         switch (responseType) {
             case SUCCESS:
-                WordEntry we = new WordEntry(word, "", responseData);
-                editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), responseData, false);
+                editWord(word, word, words.get(getIndexByWord(words, word)).getDescription(), responseData);
                 break;
             case NO_DATA:
 
@@ -274,13 +251,12 @@ public class MainActivity extends AppCompatActivity
      * Edits an existing word.
      * Includes modifying database, local lists, and visual elements representing the words
      *
-     * @param oldWord       Old word
-     * @param newWord       Modified version of a word
-     * @param newDesc       Modified version of a description
-     * @param toastFeedback If set to true, a toast feedback message would appear upon addition
+     * @param oldWord Old word
+     * @param newWord Modified version of a word
+     * @param newDesc Modified version of a description
      * @return Was the edit successful
      */
-    public boolean editWord(String oldWord, String newWord, String newDesc, boolean toastFeedback) {
+    public boolean editWord(String oldWord, String newWord, String newDesc) {
         WordEntry entry = new WordEntry(newWord, newDesc, words.get(getIndexByWord(words, oldWord)).getWordsJson());
         DatabaseHelper.Returns updated = dbHelper.update(oldWord, entry);
         if (updated == DatabaseHelper.Returns.UPDATED) {
@@ -290,15 +266,11 @@ public class MainActivity extends AppCompatActivity
             return false;
     }
 
-    public boolean editWord(int position, String newWord, String newDesc, boolean toastFeedback) {
-        return editWord(words.get(position).getWord(), newWord, newDesc, toastFeedback);
+    public boolean editWord(int position, String newWord, String newDesc) {
+        return editWord(words.get(position).getWord(), newWord, newDesc);
     }
 
-    public boolean editWord(int position, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
-        return editWord(words.get(position).getWord(), newWord, newDesc, newMeaningsJson, toastFeedback);
-    }
-
-    public boolean editWord(String oldWord, String newWord, String newDesc, String newMeaningsJson, boolean toastFeedback) {
+    public boolean editWord(String oldWord, String newWord, String newDesc, String newMeaningsJson) {
         WordEntry entry = new WordEntry(newWord, newDesc, newMeaningsJson);
         DatabaseHelper.Returns updated = dbHelper.update(oldWord, entry);
         if (updated == DatabaseHelper.Returns.UPDATED) {
@@ -346,8 +318,7 @@ public class MainActivity extends AppCompatActivity
     public void listUpdate() {
         List<WordEntry> reversedWords = new ArrayList<>(words);
         Collections.reverse(reversedWords);
-        ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, getWordArray(reversedWords));
-        listViewWords.setAdapter(adapter);
+        listViewWords.setAdapter(new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, getWordArray(reversedWords)));
     }
 
     public String[] getWordArray(List<WordEntry> list) {
@@ -374,8 +345,4 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.layoutMain_Dimmer).animate().alpha(0.0f);
     }
     //********************************************************************************************//
-
-    public interface MainActivityInterface {
-        public void applyDictUpdate(String word, String responseData, WebDictionary.Responses responseType, VariationsPagerAdapter.ViewPagerViewHolder holder);
-    }
 }

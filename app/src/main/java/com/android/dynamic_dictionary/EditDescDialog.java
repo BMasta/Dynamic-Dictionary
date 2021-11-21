@@ -2,7 +2,6 @@ package com.android.dynamic_dictionary;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +15,10 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 public class EditDescDialog extends AppCompatDialogFragment {
     private EditText editTextDesc;
     private EditWordDialogListener listener;
-    private String oldDescHint;
-    private int pos;
+    private final String oldDescHint;
+    private final int pos;
 
-    public EditDescDialog(int position, String oldWord, String oldDesc) {
+    public EditDescDialog(int position, String oldDesc) {
         super();
         oldDescHint = oldDesc;
         pos = position;
@@ -28,23 +27,16 @@ public class EditDescDialog extends AppCompatDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_edit_desc_dialog, null);
         builder.setView(view)
                 .setTitle("Edit Notes")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
+                .setNegativeButton("Cancel", (dialog, which) -> {
                 })
-                .setPositiveButton("save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String desc = editTextDesc.getText().toString();
-                        listener.handleEditDialogData(pos, desc);
-                    }
+                .setPositiveButton("save", (dialog, which) -> {
+                    String desc = editTextDesc.getText().toString();
+                    listener.handleEditDialogData(pos, desc);
                 });
         editTextDesc = view.findViewById(R.id.editTextEditDesc);
         editTextDesc.setText(oldDescHint);

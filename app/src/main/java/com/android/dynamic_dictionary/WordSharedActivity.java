@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class WordSharedActivity extends AppCompatActivity implements WebDictionary.WebDictionaryResponseListener {
-    private VariationsPagerAdapterNoNotes pagerAdapter;
     private String responseData;
 
     @Override
@@ -33,18 +32,10 @@ public class WordSharedActivity extends AppCompatActivity implements WebDictiona
         // request definition from the web dictionary
         WebDictionary.sendDefinitionRequest(this, word, null);
 
-        findViewById(R.id.buttonWordShared_Cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        findViewById(R.id.buttonWordShared_Add).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addWord(word);
-                finish();
-            }
+        findViewById(R.id.buttonWordShared_Cancel).setOnClickListener(v -> finish());
+        findViewById(R.id.buttonWordShared_Add).setOnClickListener(v -> {
+            addWord(word);
+            finish();
         });
     }
 
@@ -77,15 +68,12 @@ public class WordSharedActivity extends AppCompatActivity implements WebDictiona
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pager.setVisibility(View.GONE);
-                button.setVisibility(View.INVISIBLE);
-                button.setClickable(false);
-                progressBar.setVisibility(View.VISIBLE);
-                WebDictionary.sendDefinitionRequest(context, word, holder);
-            }
+        button.setOnClickListener(v -> {
+            pager.setVisibility(View.GONE);
+            button.setVisibility(View.INVISIBLE);
+            button.setClickable(false);
+            progressBar.setVisibility(View.VISIBLE);
+            WebDictionary.sendDefinitionRequest(context, word, holder);
         });
         progressBar.setVisibility(View.GONE);
         button.setClickable(true);
@@ -96,23 +84,23 @@ public class WordSharedActivity extends AppCompatActivity implements WebDictiona
                 button.setVisibility(View.GONE);
 
                 WordEntry e = new WordEntry(word, "", responseData);
-                pagerAdapter = new VariationsPagerAdapterNoNotes(this, e.getWordVariations(), e.getWord(), e.getDescription());
+                VariationsPagerAdapterNoNotes pagerAdapter = new VariationsPagerAdapterNoNotes(this, e.getWordVariations());
                 pager.setAdapter(pagerAdapter);
                 break;
             case NO_DATA:
                 pager.setVisibility(View.GONE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("Undefined word");
+                textView.setText(R.string.error_undefined);
                 break;
             case RESPONSE_ERROR:
                 pager.setVisibility(View.GONE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("Dictionary error");
+                textView.setText(R.string.error_dict);
                 break;
             case NO_RESPONSE:
                 pager.setVisibility(View.GONE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("No Internet");
+                textView.setText(R.string.error_no_internet);
                 break;
         }
     }

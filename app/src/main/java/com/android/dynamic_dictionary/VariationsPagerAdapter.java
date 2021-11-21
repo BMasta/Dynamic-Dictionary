@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -18,12 +17,14 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
 
-public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPagerAdapter.ViewPagerViewHolder> implements MainActivity.MainActivityInterface {
+public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPagerAdapter.ViewPagerViewHolder> {
     private List<WordEntryVariation> variations;
-    private String word;
-    private String desc;
-    private Context parentContext;
-    private final int LAYOUT_DESC = 0, LAYOUT_VARIATION = 1, LAYOUT_ERROR = 2;
+    private final String word;
+    private final String desc;
+    private final Context parentContext;
+    private final int LAYOUT_DESC = 0;
+    private final int LAYOUT_VARIATION = 1;
+    private final int LAYOUT_ERROR = 2;
 
     public VariationsPagerAdapter(Context context, List<WordEntryVariation> variations, String word, String description) {
         this.variations = variations;
@@ -32,7 +33,7 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
         this.desc = description;
     }
 
-    public class ViewPagerViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewPagerViewHolder extends RecyclerView.ViewHolder {
         private final ViewPager2 pagerMeanings;
         private final TabLayout tabLayout;
         private final TextView textViewVariation;
@@ -56,7 +57,7 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
     @NonNull
     @Override
     public ViewPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        int layoutID;
+        int layoutID = R.layout.layout_no_internet_fragment;
         switch (viewType) {
             case LAYOUT_DESC:
                 layoutID = R.layout.layout_desc_fragment;
@@ -64,10 +65,11 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
             case LAYOUT_VARIATION:
                 layoutID = R.layout.layout_variation_fragment;
                 break;
-            default:
+            case LAYOUT_ERROR:
                 layoutID = R.layout.layout_no_internet_fragment;
         }
         View view = LayoutInflater.from(parent.getContext()).inflate(layoutID, parent, false);
+        assert view != null;
         return new ViewPagerViewHolder(view);
     }
 
@@ -109,12 +111,9 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
         MeaningsPagerAdapter meaningsPagerAdapter = new MeaningsPagerAdapter(parentContext, variations.get(position - 1).getMeanings());
         holder.pagerMeanings.setAdapter(meaningsPagerAdapter);
         holder.pagerMeanings.setUserInputEnabled(false);
-        new TabLayoutMediator(holder.tabLayout, holder.pagerMeanings, new TabLayoutMediator.TabConfigurationStrategy() {
-            @Override
-            public void onConfigureTab(@NonNull TabLayout.Tab tab, int positionMeaning) {
-                tab.setText(variations.get(holder.getAdapterPosition() - 1).getMeanings().get(positionMeaning).getPartOfSpeech());
-            }
-        }).attach();
+        new TabLayoutMediator(holder.tabLayout, holder.pagerMeanings, (tab, positionMeaning) ->
+                tab.setText(variations.get(holder.getAdapterPosition() - 1)
+                        .getMeanings().get(positionMeaning).getPartOfSpeech())).attach();
         String var = variations.get(position - 1).getWordVariation();
         if (var.length() > 1)
             var = var.substring(0, 1).toUpperCase() + var.substring(1);
@@ -132,18 +131,14 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
         holder.textViewError.setVisibility(View.GONE);
         holder.buttonRetry.setClickable(false);
         WebDictionary.sendDefinitionRequest(parentContext, word, holder);
-        holder.buttonRetry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.progressBarConnection.setVisibility(View.VISIBLE);
-                holder.buttonRetry.setVisibility(View.INVISIBLE);
-                holder.buttonRetry.setClickable(false);
-                WebDictionary.sendDefinitionRequest(parentContext, word, holder);
-            }
+        holder.buttonRetry.setOnClickListener(v -> {
+            holder.progressBarConnection.setVisibility(View.VISIBLE);
+            holder.buttonRetry.setVisibility(View.INVISIBLE);
+            holder.buttonRetry.setClickable(false);
+            WebDictionary.sendDefinitionRequest(parentContext, word, holder);
         });
     }
 
-    @Override
     public void applyDictUpdate(String word, String responseData, WebDictionary.Responses responseType, ViewPagerViewHolder holder) {
         try {
             Thread.sleep(200);
@@ -164,22 +159,22 @@ public class VariationsPagerAdapter extends RecyclerView.Adapter<VariationsPager
             case NO_DATA:
                 textView.setVisibility(View.VISIBLE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("Undefined word");
+                textView.setText(R.string.error_undefined);
                 break;
             case RESPONSE_ERROR:
                 textView.setVisibility(View.VISIBLE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("Dictionary error");
+                textView.setText(R.string.error_dict);
                 break;
             case NO_RESPONSE:
                 textView.setVisibility(View.VISIBLE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("No Internet");
+                textView.setText(R.string.error_no_internet);
                 break;
             default:
                 textView.setVisibility(View.VISIBLE);
                 button.setVisibility(View.VISIBLE);
-                textView.setText("Something went wrong");
+                textView.setText(R.string.error_unknown);
         }
     }
 }

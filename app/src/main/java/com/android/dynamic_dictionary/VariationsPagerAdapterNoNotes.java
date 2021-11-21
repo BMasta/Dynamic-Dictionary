@@ -16,20 +16,15 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import java.util.List;
 
 public class VariationsPagerAdapterNoNotes extends RecyclerView.Adapter<VariationsPagerAdapterNoNotes.ViewPagerViewHolder> {
-    private List<WordEntryVariation> variations;
-    private String word;
-    private String desc;
-    private Context parentContext;
-    private final int LAYOUT_DESC = 0, LAYOUT_VARIATION = 1;
+    private final List<WordEntryVariation> variations;
+    private final Context parentContext;
 
-    public VariationsPagerAdapterNoNotes(Context context, List<WordEntryVariation> variations, String word, String description) {
+    public VariationsPagerAdapterNoNotes(Context context, List<WordEntryVariation> variations) {
         this.variations = variations;
         this.parentContext = context;
-        this.word = word;
-        this.desc = description;
     }
 
-    public class ViewPagerViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewPagerViewHolder extends RecyclerView.ViewHolder {
         private final ViewPager2 pagerMeanings;
         private final TabLayout tabLayout;
         private final TextView textViewVariation;
@@ -54,12 +49,11 @@ public class VariationsPagerAdapterNoNotes extends RecyclerView.Adapter<Variatio
         MeaningsPagerAdapter meaningsPagerAdapter = new MeaningsPagerAdapter(parentContext, variations.get(position).getMeanings());
         holder.pagerMeanings.setAdapter(meaningsPagerAdapter);
         holder.pagerMeanings.setUserInputEnabled(false);
-        new TabLayoutMediator(holder.tabLayout, holder.pagerMeanings, new TabLayoutMediator.TabConfigurationStrategy() {
-            @Override
-            public void onConfigureTab(@NonNull TabLayout.Tab tab, int positionMeaning) {
-                tab.setText(variations.get(holder.getAdapterPosition()).getMeanings().get(positionMeaning).getPartOfSpeech());
-            }
-        }).attach();
+        new TabLayoutMediator(holder.tabLayout, holder.pagerMeanings, (tab, positionMeaning) ->
+                tab.setText(variations.get(holder.getAdapterPosition())
+                        .getMeanings()
+                        .get(positionMeaning).getPartOfSpeech())).attach();
+
         String var = variations.get(position).getWordVariation();
         if (var.length() > 1)
             var = var.substring(0, 1).toUpperCase() + var.substring(1);

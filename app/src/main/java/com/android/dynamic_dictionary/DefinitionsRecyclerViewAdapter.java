@@ -11,9 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class DefinitionsRecyclerViewAdapter extends RecyclerView.Adapter<DefinitionsRecyclerViewAdapter.RecycleViewHolder> implements View.OnClickListener, View.OnLongClickListener {
-    private List<WordEntryDefinition> defs;
+    private final List<WordEntryDefinition> defs;
     private boolean isDefinition;
-    private RecycleViewHolder holderToFlip;
 
     public DefinitionsRecyclerViewAdapter(List<WordEntryDefinition> defs) {
         this.defs = defs;
@@ -26,17 +25,18 @@ public class DefinitionsRecyclerViewAdapter extends RecyclerView.Adapter<Definit
         TextView textViewDefinition = v.findViewById(R.id.textViewDefinitionBody);
         String body;
         if (isDefinition) {
-            body = defs.get((int)v.getTag()).getExample();
+            body = defs.get((int) v.getTag()).getExample();
             if (body == null || body.length() < 2)
                 return;
-            textViewType.setText("Example");
+            textViewType.setText(R.string.example);
         } else {
-            body = defs.get((int)v.getTag()).getTitle();
+            body = defs.get((int) v.getTag()).getTitle();
             if (body == null || body.length() < 2)
                 return;
-            textViewType.setText("Definition");
+            textViewType.setText(R.string.definition);
         }
-        textViewDefinition.setText(body.substring(0, 1).toUpperCase() + body.substring(1));
+        body = body.substring(0, 1).toUpperCase() + body.substring(1);
+        textViewDefinition.setText(body);
         isDefinition = !isDefinition;
     }
 
@@ -45,13 +45,12 @@ public class DefinitionsRecyclerViewAdapter extends RecyclerView.Adapter<Definit
         return false;
     }
 
-    public class RecycleViewHolder extends RecyclerView.ViewHolder {
-        private TextView textViewDefinition, textViewType;
+    public static class RecycleViewHolder extends RecyclerView.ViewHolder {
+        private final TextView textViewDefinition;
 
         public RecycleViewHolder(@NonNull View itemView, DefinitionsRecyclerViewAdapter adapter) {
             super(itemView);
             itemView.setOnClickListener(adapter);
-            textViewType = itemView.findViewById(R.id.textViewDefinition);
             textViewDefinition = itemView.findViewById(R.id.textViewDefinitionBody);
         }
     }
@@ -67,7 +66,8 @@ public class DefinitionsRecyclerViewAdapter extends RecyclerView.Adapter<Definit
     public void onBindViewHolder(@NonNull RecycleViewHolder holder, int position) {
         holder.itemView.setTag(position);
         String title = defs.get(position).getTitle();
-        holder.textViewDefinition.setText(title.substring(0, 1).toUpperCase() + title.substring(1));
+        String body = title.substring(0, 1).toUpperCase() + title.substring(1);
+        holder.textViewDefinition.setText(body);
     }
 
     @Override

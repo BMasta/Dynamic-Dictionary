@@ -1,5 +1,7 @@
 package com.android.dynamic_dictionary;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,8 +13,9 @@ public class WordEntryDefinition {
     //--------------------------fields--------------------------//
     private String title;
     private String example;
-    private JSONObject definitionJson;
+    private final JSONObject definitionJson;
     private List<String> synonyms;
+
     //-----------------------constructor------------------------//
     public WordEntryDefinition(JSONObject definitionJson) {
         this.definitionJson = definitionJson;
@@ -20,6 +23,7 @@ public class WordEntryDefinition {
         getExample();
         getSynonyms();
     }
+
     //-------------------getters and setters--------------------//
     public String getTitle() {
         if (title == null) {
@@ -37,14 +41,10 @@ public class WordEntryDefinition {
             try {
                 example = definitionJson.getString("example");
             } catch (JSONException e) {
-               // no examples provided
+                // no examples provided
             }
         }
         return example;
-    }
-
-    public JSONObject getDefinitionJson() {
-        return definitionJson;
     }
 
     public List<String> getSynonyms() {
@@ -62,6 +62,7 @@ public class WordEntryDefinition {
         return synonyms;
     }
 
+    @NonNull
     @Override
     public String toString() {
         getTitle();

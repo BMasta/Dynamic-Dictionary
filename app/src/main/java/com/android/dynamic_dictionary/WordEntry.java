@@ -1,5 +1,7 @@
 package com.android.dynamic_dictionary;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -9,10 +11,11 @@ import java.util.List;
 
 public class WordEntry {
     //--------------------------fields--------------------------//
-    private String word;
-    private String description;
-    private String wordsJson;
+    private final String word;
+    private final String description;
+    private final String wordsJson;
     private List<WordEntryVariation> wordVariations;
+
     //-----------------------constructor------------------------//
     public WordEntry(String word, String description, String wordsJson) {
         super();
@@ -21,6 +24,7 @@ public class WordEntry {
         this.wordsJson = wordsJson;
         getWordVariations();
     }
+
     //-------------------getters and setters--------------------//
     public String getWord() {
         return word;
@@ -45,9 +49,9 @@ public class WordEntry {
                 JSONArray wordsParsed = new JSONArray(wordsJson);
                 for (int iWordsParsed = 0, iWordVar = 0; iWordsParsed < wordsParsed.length(); ++iWordsParsed) {
                     WordEntryVariation newVar = new WordEntryVariation(wordsParsed.getJSONObject(iWordsParsed));
-                    if (iWordVar > 0 && newVar.getWordVariation().equals(wordVariations.get(iWordVar-1).getWordVariation())) {
+                    if (iWordVar > 0 && newVar.getWordVariation().equals(wordVariations.get(iWordVar - 1).getWordVariation())) {
                         // combine meanings of 2 or more variations if they have the same title
-                        wordVariations.get(iWordVar-1).addMeanings(newVar.getMeanings());
+                        wordVariations.get(iWordVar - 1).addMeanings(newVar.getMeanings());
                     } else {
                         iWordVar++;
                         wordVariations.add(newVar);
@@ -56,12 +60,16 @@ public class WordEntry {
 
             } catch (JSONException e) {
                 e.printStackTrace();
-            } catch (NullPointerException e) { }
+            } catch (NullPointerException e) {
+                return wordVariations;
+            }
         }
 
         return wordVariations;
     }
+
     //-------------------------toString-------------------------//
+    @NonNull
     @Override
     public String toString() {
         getWordVariations();

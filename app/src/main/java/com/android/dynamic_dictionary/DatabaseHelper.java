@@ -13,7 +13,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "WORDS_TABLE", COL_WORD = "WORD", COL_DESC = "DESCRIPTION", COL_MEANINGS = "MEANINGSJSON";
     private static final int COL_WORD_INDEX = 0, COL_DESC_INDEX = 1, COL_MEANINGS_INDEX = 2;
 
-    public enum Returns{
+    public enum Returns {
         ADDED,
         UPDATED,
         UPDATED_ADDED_NEW,
@@ -88,7 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(COL_MEANINGS, newEntry.getWordsJson());
         int updated = db.update(TABLE_NAME, cv, COL_WORD + "=?", new String[]{oldWord});
         if (updated == 0) {
-            if(add(newEntry) == Returns.NOT_ADDED_ERROR)
+            if (add(newEntry) == Returns.NOT_ADDED_ERROR)
                 return Returns.NOT_UPDATED;
             else
                 return Returns.UPDATED_ADDED_NEW;
@@ -99,7 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Returns delete(String word) {
         SQLiteDatabase db = getWritableDatabase();
         int deleted = db.delete(TABLE_NAME, COL_WORD + "=?", new String[]{word});
-        if(deleted > 0)
+        if (deleted > 0)
             return Returns.DELETED;
         else
             return Returns.NOT_DELETED;
@@ -114,15 +114,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             desc = cursor.getString(COL_DESC_INDEX);
             wordsJson = cursor.getString(COL_MEANINGS_INDEX);
-            WordEntry res = new WordEntry(word, desc, wordsJson);
-            return res;
-        }
-        else
+            cursor.close();
+            return new WordEntry(word, desc, wordsJson);
+        } else
             return null;
-    }
-
-    public Returns delete(WordEntry entry) {
-
-        return delete(entry.getWord());
     }
 }

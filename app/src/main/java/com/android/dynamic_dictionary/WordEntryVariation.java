@@ -1,5 +1,7 @@
 package com.android.dynamic_dictionary;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,29 +12,27 @@ import java.util.List;
 public class WordEntryVariation {
     //--------------------------fields--------------------------//
     private String wordVariation;
-    private JSONObject wordJson;
+    private final JSONObject wordJson;
     private List<WordEntryMeaning> meanings;
+
     //-----------------------constructor------------------------//
     public WordEntryVariation(JSONObject wordJson) {
         this.wordJson = wordJson;
         getWordVariation();
         getMeanings();
     }
+
     //-------------------getters and setters--------------------//
     public String getWordVariation() {
         if (wordVariation == null) {
             try {
-                wordVariation =  wordJson.getString("word");
+                wordVariation = wordJson.getString("word");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
         return wordVariation;
-    }
-
-    public JSONObject getWordJson() {
-        return wordJson;
     }
 
     public List<WordEntryMeaning> getMeanings() {
@@ -45,11 +45,14 @@ public class WordEntryVariation {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-            } catch (NullPointerException e) { }
+            } catch (NullPointerException e) {
+                return meanings;
+            }
 
         }
         return meanings;
     }
+
     //---------------------add more meanings--------------------//
     public void addMeanings(List<WordEntryMeaning> meaningsToAdd) {
         for (int iMeanings = 0, iMeaningsToAdd = 0; iMeaningsToAdd < meaningsToAdd.size(); ++iMeaningsToAdd) {
@@ -62,7 +65,9 @@ public class WordEntryVariation {
             }
         }
     }
+
     //-------------------------toString-------------------------//
+    @NonNull
     @Override
     public String toString() {
         getMeanings();

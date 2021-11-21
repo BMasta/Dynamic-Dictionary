@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,17 +12,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class MeaningsPagerAdapter extends RecyclerView.Adapter<MeaningsPagerAdapter.ViewPagerViewHolder> {
-    private List<WordEntryMeaning> meanings;
-    private int wordNumber = 0;
-    private Context parentContext;
+    private final List<WordEntryMeaning> meanings;
+    private final Context parentContext;
 
     public MeaningsPagerAdapter(Context context, List<WordEntryMeaning> meanings) {
         this.meanings = meanings;
         this.parentContext = context;
     }
 
-    public class ViewPagerViewHolder extends RecyclerView.ViewHolder {
-        private RecyclerView recyclerViewDefinitions;
+    public static class ViewPagerViewHolder extends RecyclerView.ViewHolder {
+        private final RecyclerView recyclerViewDefinitions;
 
         public ViewPagerViewHolder(@NonNull View itemView) {
             super(itemView);
