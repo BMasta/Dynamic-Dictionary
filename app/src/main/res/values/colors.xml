@@ -13,4 +13,5 @@
     <color name="paper_yellow">#FEFFCD</color>
     <color name="cancel_red">#F44336</color>
     <color name="add_green">#4CAF50</color>
+    <color name="black_trans">#B2000000</color>
 </resources>

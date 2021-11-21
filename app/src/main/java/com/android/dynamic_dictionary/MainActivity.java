@@ -4,12 +4,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.view.ViewGroupCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -28,7 +40,6 @@ public class MainActivity extends AppCompatActivity
         NewWordDialog.NewWordDialogListener, EditDescDialog.EditWordDialogListener,
         WebDictionary.WebDictionaryResponseListener {
     //***********************************Global scope variables***********************************//
-
     // UI elements (Views)
     private ListView listViewWords;
     private FloatingActionButton buttonAdd;
@@ -80,7 +91,6 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         //-------------------------------call init functions-------------------------------//
-        constraintUpdate();
         dbSync();
         listUpdate();
         //---------------------------------------------------------------------------------//
@@ -109,18 +119,54 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         constraintLayoutDesc.setVisibility(View.VISIBLE);
-        constraintUpdate();
+
         WordEntry e = words.get(getIndexByWord(words, (String) listViewWords.getItemAtPosition(position)));
         pagerAdapter = new VariationsPagerAdapter(this, e.getWordVariations(), e.getWord(), e.getDescription());
         pagerVariations.setAdapter(pagerAdapter);
         pagerVariations.setCurrentItem(1, false);
+
+        int height = constraintLayoutRoot.getHeight();
+        constraintLayoutDesc.setTranslationY(height);
+        buttonAdd.animate().alpha(0.0f).setDuration(100).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                dim();
+                constraintLayoutDesc.animate().translationY(0).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        constraintLayoutDesc.clearAnimation();
+                    }
+                });
+            }
+        });
     }
+
+
 
     @Override
     public void onBackPressed() {
         if (constraintLayoutDesc.getVisibility() == View.VISIBLE) {
-            constraintLayoutDesc.setVisibility(View.INVISIBLE);
-            constraintUpdate();
+            int height = constraintLayoutDesc.getHeight();
+            unDim();
+            constraintLayoutDesc.animate().alpha(0.0f).translationY(height).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    constraintLayoutDesc.clearAnimation();
+                    constraintLayoutDesc.setAlpha(1.0f);
+                    constraintLayoutDesc.setVisibility(View.GONE);
+                    buttonAdd.animate().alpha(1.0f).setDuration(100).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            constraintLayoutDesc.clearAnimation();
+                            buttonAdd.clearAnimation();
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -320,22 +366,12 @@ public class MainActivity extends AppCompatActivity
         return -1;
     }
 
-    public void constraintUpdate() {
-        // init sets
-        setDescVisible = new ConstraintSet();
-        setDescInvisible = new ConstraintSet();
-        setDescVisible.clone(constraintLayoutRoot);
-        setDescInvisible.clone(constraintLayoutRoot);
-        setDescVisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.layoutDesc, ConstraintSet.TOP);
-        setDescVisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.7f);
-        setDescInvisible.connect(R.id.floatingActionButtonAdd, ConstraintSet.BOTTOM, R.id.constrainedLayoutRoot, ConstraintSet.BOTTOM);
-        setDescInvisible.setVerticalBias(R.id.floatingActionButtonAdd, 0.9f);
+    private void dim() {
+        findViewById(R.id.layoutMain_Dimmer).animate().alpha(0.60f);
+    }
 
-        // apply sets
-        if (constraintLayoutDesc.getVisibility() == View.VISIBLE)
-            setDescVisible.applyTo(constraintLayoutRoot);
-        else
-            setDescInvisible.applyTo(constraintLayoutRoot);
+    private void unDim() {
+        findViewById(R.id.layoutMain_Dimmer).animate().alpha(0.0f);
     }
     //********************************************************************************************//
 
