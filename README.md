@@ -1,6 +1,6 @@
 # Dynamic Dictionary
 Dynamic dictionary is your personal tool to save and learn new words.
-##Usage
+## Usage
 There are two ways to add a new word:
 1.  Add a word manually with the plus button.
 2.  Select the word you want to add in your browser and click "share".
